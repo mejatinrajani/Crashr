@@ -1,6 +1,23 @@
 import Button from '../components/Button';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function CreateParty() {
+  const [formData, setFormData] = useState({
+    title: '', description: '', event_time: '', location: '', price: 0
+  });
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await api.post('/parties', formData);
+      console.log("Party created!", response.data);
+      navigate('/'); // Redirect to home
+    } catch (error) {
+      console.error("Error creating party:", error);
+    }
+  };
   return (
     <div className="max-w-2xl mx-auto p-8">
       <div className="mb-10 text-center">
