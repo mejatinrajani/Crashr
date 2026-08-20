@@ -11,17 +11,25 @@ export default function Navbar() {
         CRASHR.
       </Link>
       <div className="flex gap-4 items-center">
-        {user ? (
-          <>
-            <Link to="/host">
-              <Button variant="rounded" color="lavender">Host a Party</Button>
-            </Link>
-            <button onClick={logout} className="text-sm font-semibold text-gray-500 hover:text-gray-900 transition-colors">
-              Log Out
-            </button>
-          </>
-        ) : (
-          <Button onClick={login} variant="rectangular" color="green">Log In</Button>
+          {user ? (
+            <>
+              <Link to="/host">
+                <Button variant="rounded" color="lavender">Host a Party</Button>
+              </Link>
+              <Link to="/dashboard" className="text-sm font-semibold text-gray-500 hover:text-gray-900 transition-colors">
+                Dashboard
+              </Link>
+              <Link to="/profile" className="text-sm font-semibold text-gray-500 hover:text-gray-900 transition-colors">
+                Profile
+              </Link>
+              <button onClick={logout} className="text-sm font-semibold text-gray-500 hover:text-[#10B981] transition-colors">
+                Log Out
+              </button>
+            </>
+          ) : (
+          <Link to="/auth">
+            <Button variant="rectangular" color="green">Log In</Button>
+          </Link>
         )}
       </div>
     </nav>

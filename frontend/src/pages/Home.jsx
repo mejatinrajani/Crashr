@@ -56,10 +56,8 @@ export default function Home() {
               key={party.id} 
               party={{
                 ...party,
-                // Formatting data for the PartyCard component
                 time: formatDateTime(party.event_time),
-                price: formatCurrency(party.price),
-                host: "Host" // We can fetch host profiles later if you add a users table
+                price: formatCurrency(party.price)
               }} 
             />
           ))}

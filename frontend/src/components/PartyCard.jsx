@@ -3,13 +3,27 @@ import { Calendar, MapPin } from 'lucide-react';
 import Button from './Button';
 
 export default function PartyCard({ party }) {
+  // Fallback name if the user hasn't set one up yet
+  const hostName = party.profiles?.full_name || 'Anonymous Host';
+
   return (
     <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:shadow-md transition-all duration-300 group">
       <div className="flex-1">
-        <h3 className="text-2xl font-bold text-gray-900 mb-1 group-hover:text-[#10B981] transition-colors">
+        <h3 className="text-2xl font-bold text-gray-900 mb-2 group-hover:text-[#10B981] transition-colors">
           {party.title}
         </h3>
-        <p className="text-[#6B21A8] font-medium mb-3">Hosted by {party.host}</p>
+        
+        {/* Dynamic Host Section */}
+        <div className="flex items-center gap-2 mb-3">
+          {party.profiles?.avatar_url ? (
+            <img src={party.profiles.avatar_url} alt={hostName} className="w-6 h-6 rounded-full object-cover" />
+          ) : (
+            <div className="w-6 h-6 rounded-full bg-[#E9D5FF] flex items-center justify-center text-[#6B21A8] text-xs font-bold">
+              {hostName.charAt(0)}
+            </div>
+          )}
+          <p className="text-[#6B21A8] font-medium text-sm">Hosted by {hostName}</p>
+        </div>
         
         <div className="flex flex-col sm:flex-row gap-3 text-sm text-gray-500">
           <span className="flex items-center gap-1.5">
@@ -24,7 +38,6 @@ export default function PartyCard({ party }) {
       
       <div className="flex flex-row md:flex-col items-center md:items-end justify-between w-full md:w-auto gap-3 border-t border-gray-50 md:border-t-0 pt-4 md:pt-0 mt-2 md:mt-0">
         <span className="text-2xl font-bold text-[#10B981]">{party.price}</span>
-        {/* We link to a dynamic route for the party details */}
         <Link to={`/party/${party.id}`}>
           <Button variant="rectangular" color="green" className="w-full md:w-auto">
             View Details
