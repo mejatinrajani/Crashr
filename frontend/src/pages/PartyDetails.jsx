@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { MapPin, Calendar, Users, Music, Loader2, ArrowLeft, Lock, Ticket, CheckCircle2, Clock } from 'lucide-react';
 import Button from '../components/Button';
 import api from '../services/api';
-import { toast } from 'sonner';
+import { toast } from 'react-hot-toast';
 import { supabase } from '../services/supabase';
 import { useAuth } from '../context/AuthContext';
 import { formatDateTime, formatCurrency } from '../utils/formatters';
@@ -63,6 +63,26 @@ export default function PartyDetails() {
       supabase.removeChannel(channel);
     };
   }, [id, user]);
+
+  const isHost = user?.id === party?.host_id;
+  const handlePayment = async () => {
+  setIsPurchasing(true);
+  try {
+    // We need the ticket ID to pay. 
+    // You should fetch the user's specific ticket ID in your fetchPartyDetails useEffect,
+    // or fetch it here. For simplicity, assuming you have it in state as `userTicketId`:
+    const { data: ticketData } = await api.get(`/tickets/my-ticket/${id}`); 
+    await api.post(`/tickets/${ticketData.id}/pay`);
+    
+    setTicketStatus('confirmed');
+    toast.success("Payment successful! You are on the list.");
+  } catch (err) {
+    console.error(err);
+    toast.error("Payment failed. Please try again.");
+  } finally {
+    setIsPurchasing(false);
+  }
+};
 
   const handlePurchaseTicket = async () => {
     if (!user) {
@@ -203,6 +223,53 @@ export default function PartyDetails() {
               <span className="text-sm text-gray-500 font-medium">per guest</span>
             </div>
 
+            {/* Logic Gate: Is Host vs Is Guest */}
+            {isHost ? (
+              <Link to="/dashboard">
+                <Button variant="rectangular" color="lavender" className="w-full text-lg py-3 mb-3">
+                  Manage Guest List
+                </Button>
+              </Link>
+            ) : !ticketStatus ? (
+              <Button 
+                onClick={handlePurchaseTicket} 
+                variant="rectangular" 
+                color="green" 
+                disabled={isPurchasing}
+                className="w-full text-lg py-3 mb-3 disabled:opacity-70"
+              >
+                {isPurchasing ? <Loader2 className="animate-spin mx-auto" size={24} /> : "Request Ticket"}
+              </Button>
+            ) : ticketStatus === 'pending' ? (
+              <div className="bg-amber-50 text-amber-600 p-4 rounded-xl flex items-center justify-center gap-2 font-bold mb-3 border border-amber-200">
+                <Clock size={20} /> Request Pending
+              </div>
+            ) : ticketStatus === 'approved' ? (
+              <Button 
+                onClick={handlePayment} 
+                variant="rectangular" 
+                color="green" 
+                disabled={isPurchasing}
+                className="w-full text-lg py-3 mb-3 animate-pulse"
+              >
+                {isPurchasing ? <Loader2 className="animate-spin mx-auto" size={24} /> : "Pay to Confirm Spot"}
+              </Button>
+            ) : ticketStatus === 'confirmed' ? (
+              <div className="bg-[#10B981]/10 text-[#10B981] p-4 rounded-xl flex items-center justify-center gap-2 font-bold mb-3">
+                <CheckCircle2 size={20} /> You're Going!
+              </div>
+            ) : (
+              <div className="bg-gray-100 text-gray-600 p-4 rounded-xl flex items-center justify-center gap-2 font-bold mb-3">
+                <Ticket size={20} /> On Waitlist
+              </div>
+            )}
+
+            {!user && !ticketStatus && (
+              <p className="text-xs text-center text-red-400 font-medium mb-2">You must log in to buy a ticket.</p>
+            )}
+            <p className="text-xs text-center text-gray-400">Secure transaction via Crashr</p>
+          </div>
+
             {/* Dynamic Ticket Button Based on Status */}
             {!ticketStatus ? (
               <Button 
@@ -235,6 +302,5 @@ export default function PartyDetails() {
           </div>
         </div>
       </div>
-    </div>
   );
 }

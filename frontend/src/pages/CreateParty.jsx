@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Loader2, AlertCircle, Shield, EyeOff, Users, Image as ImageIcon } from 'lucide-react';
 import Button from '../components/Button';
 import api from '../services/api';
-import { toast } from 'sonner';
+import { toast } from 'react-hot-toast';
 import { supabase } from '../services/supabase';
 import { useAuth } from '../context/AuthContext';
 

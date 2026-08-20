@@ -12,9 +12,12 @@ export default function Navbar() {
       </Link>
       <div className="flex gap-4 items-center">
           {user ? (
-            <>
+            <div className="flex items-center gap-4">
               <Link to="/host">
                 <Button variant="rounded" color="lavender">Host a Party</Button>
+              </Link>
+              <Link to="/my-tickets" className="text-sm font-semibold text-gray-500 hover:text-gray-900 transition-colors">
+                My Tickets
               </Link>
               <Link to="/dashboard" className="text-sm font-semibold text-gray-500 hover:text-gray-900 transition-colors">
                 Dashboard
@@ -25,7 +28,7 @@ export default function Navbar() {
               <button onClick={logout} className="text-sm font-semibold text-gray-500 hover:text-[#10B981] transition-colors">
                 Log Out
               </button>
-            </>
+            </div>
           ) : (
           <Link to="/auth">
             <Button variant="rectangular" color="green">Log In</Button>

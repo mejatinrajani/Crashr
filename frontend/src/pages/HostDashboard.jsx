@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
-import { Loader2, Users, Check, X, Clock } from 'lucide-react';
-import { toast } from 'sonner';
-import { Trash2 } from 'lucide-react';
+import { Loader2, Users, Check, X, Clock, Trash2, Edit } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import { formatDateTime } from '../utils/formatters';
+import { Link } from 'react-router-dom';
 
 export default function HostDashboard() {
   const { user } = useAuth();
@@ -24,6 +24,26 @@ export default function HostDashboard() {
     };
     if (user) fetchDashboard();
   }, [user]);
+
+  const handleCheckIn = async (partyId, ticketId) => {
+  try {
+    await api.patch(`/tickets/${ticketId}/checkin`);
+    setParties(prevParties => prevParties.map(party => {
+      if (party.id === partyId) {
+        return {
+          ...party,
+          tickets: party.tickets.map(ticket => 
+            ticket.id === ticketId ? { ...ticket, checked_in: !ticket.checked_in } : ticket
+          )
+        };
+      }
+      return party;
+    }));
+    toast.success("Guest check-in status updated!");
+  } catch (err) {
+    toast.error("Failed to update check-in status.");
+  }
+};
 
   const handleCancelParty = async (partyId) => {
     if (!window.confirm("Are you sure you want to cancel this party? This cannot be undone.")) return;
@@ -92,10 +112,18 @@ export default function HostDashboard() {
                   </div>
                   
                   {/* Updated Action Container */}
+                  {/* Updated Action Container */}
                   <div className="flex items-center gap-3">
                     <div className="bg-[#10B981]/10 text-[#10B981] px-4 py-2 rounded-full font-bold flex items-center gap-2">
                       <Users size={18} /> {confirmedCount} / {party.capacity} Confirmed
                     </div>
+                    <Link 
+                      to={`/edit-party/${party.id}`}
+                      className="w-10 h-10 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center hover:bg-blue-100 transition-colors shadow-sm"
+                      title="Edit Party"
+                    >
+                      <Edit size={18} />
+                    </Link>
                     <button 
                       onClick={() => handleCancelParty(party.id)}
                       className="w-10 h-10 rounded-full bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-100 transition-colors shadow-sm"
@@ -131,8 +159,11 @@ export default function HostDashboard() {
                                   </div>
                                 </div>
                                 <div className="flex gap-2">
-                                  <button onClick={() => handleUpdateStatus(party.id, ticket.id, 'confirmed')} className="w-10 h-10 rounded-full bg-[#10B981] text-white flex items-center justify-center hover:bg-emerald-600 transition-colors">
-                                    <Check size={20} />
+                                  <button 
+                                    onClick={() => handleUpdateStatus(party.id, ticket.id, 'approved')} // Changed from 'confirmed'
+                                    className="w-10 h-10 rounded-full bg-[#10B981] text-white flex items-center justify-center hover:bg-emerald-600 transition-colors"
+                                  >
+                                  <Check size={20} />
                                   </button>
                                   <button onClick={() => handleUpdateStatus(party.id, ticket.id, 'denied')} className="w-10 h-10 rounded-full bg-red-100 text-red-500 flex items-center justify-center hover:bg-red-200 transition-colors">
                                     <X size={20} />
@@ -145,19 +176,49 @@ export default function HostDashboard() {
                       )}
 
                       {/* Confirmed & Waitlisted */}
-                      {otherTickets.length > 0 && (
-                        <div>
-                          <h3 className="text-sm font-bold uppercase tracking-wider text-gray-400 mb-4">Guest List</h3>
+                      {/* Confirmed Guests & Check-in Mode (DOOR LIST) */}
+                      {otherTickets.filter(t => t.status === 'confirmed').length > 0 && (
+                        <div className="mt-6">
+                          <h3 className="text-sm font-bold uppercase tracking-wider text-[#10B981] mb-4">Confirmed Guests (Door List)</h3>
+                          <div className="grid gap-3">
+                            {otherTickets.filter(t => t.status === 'confirmed').map(ticket => (
+                              <div key={ticket.id} className={`flex justify-between items-center p-4 rounded-xl border transition-colors ${ticket.checked_in ? 'bg-green-50 border-green-200' : 'bg-[#F9F9F8] border-gray-100'}`}>
+                                <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 rounded-full bg-[#E9D5FF] flex items-center justify-center text-[#6B21A8] font-bold">
+                                    {ticket.profiles?.full_name?.charAt(0) || '?'}
+                                  </div>
+                                  <div>
+                                    <p className="font-bold text-gray-900">{ticket.profiles?.full_name || 'Anonymous'}</p>
+                                    <p className="text-xs text-gray-500">Ticket #{ticket.id.slice(0, 8)}</p>
+                                  </div>
+                                </div>
+                                
+                                <button 
+                                  onClick={() => handleCheckIn(party.id, ticket.id)}
+                                  className={`px-4 py-2 rounded-full font-bold text-sm transition-colors ${ticket.checked_in ? 'bg-[#10B981] text-white' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}
+                                >
+                                  {ticket.checked_in ? 'Checked In' : 'Check In'}
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Other Statuses (Awaiting Payment, Denied, etc.) */}
+                      {otherTickets.filter(t => t.status !== 'confirmed').length > 0 && (
+                        <div className="mt-6">
+                          <h3 className="text-sm font-bold uppercase tracking-wider text-gray-400 mb-4">Other Guests</h3>
                           <div className="grid sm:grid-cols-2 gap-3">
-                            {otherTickets.map(ticket => (
+                            {otherTickets.filter(t => t.status !== 'confirmed').map(ticket => (
                               <div key={ticket.id} className="flex items-center gap-3 p-3 bg-[#F9F9F8] rounded-xl border border-gray-100">
                                 <div className="w-8 h-8 rounded-full bg-[#E9D5FF] flex items-center justify-center text-[#6B21A8] font-bold text-xs">
                                   {ticket.profiles?.full_name?.charAt(0) || '?'}
                                 </div>
                                 <div className="flex-1">
                                   <p className="font-bold text-gray-900 text-sm">{ticket.profiles?.full_name || 'Anonymous'}</p>
-                                  <span className={`text-xs font-semibold ${ticket.status === 'confirmed' ? 'text-[#10B981]' : ticket.status === 'denied' ? 'text-red-400' : 'text-gray-400'}`}>
-                                    {ticket.status.charAt(0).toUpperCase() + ticket.status.slice(1)}
+                                  <span className={`text-xs font-semibold ${ticket.status === 'approved' ? 'text-blue-500' : ticket.status === 'denied' ? 'text-red-400' : 'text-gray-400'}`}>
+                                    {ticket.status === 'approved' ? 'Awaiting Payment' : ticket.status.charAt(0).toUpperCase() + ticket.status.slice(1)}
                                   </span>
                                 </div>
                               </div>

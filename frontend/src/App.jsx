@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
-import { Toaster } from 'sonner';
+import { Toaster } from 'react-hot-toast';
 
 // Components
 import Navbar from './components/Navbar';
@@ -12,7 +12,9 @@ import PartyDetails from './pages/PartyDetails';
 import CreateParty from './pages/CreateParty';
 import Auth from './pages/Auth';
 import Profile from './pages/Profile';
+import MyTickets from './pages/MyTickets'
 import HostDashboard from './pages/HostDashboard';
+import EditParty from './pages/EditParty';
 
 function App() {
   return (
@@ -28,7 +30,9 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/party/:id" element={<PartyDetails />} />
+              <Route path="/my-tickets" element={<MyTickets/>} />
               <Route path="/host" element={<CreateParty />} />
+              <Route path="/edit-party/:id" element={<EditParty/>} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/dashboard" element={<HostDashboard />} />
             </Routes>
