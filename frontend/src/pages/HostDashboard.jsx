@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import { Loader2, Users, Check, X, Clock } from 'lucide-react';
+import { toast } from 'sonner';
+import { Trash2 } from 'lucide-react';
 import { formatDateTime } from '../utils/formatters';
 
 export default function HostDashboard() {
@@ -22,6 +24,19 @@ export default function HostDashboard() {
     };
     if (user) fetchDashboard();
   }, [user]);
+
+  const handleCancelParty = async (partyId) => {
+    if (!window.confirm("Are you sure you want to cancel this party? This cannot be undone.")) return;
+    
+    try {
+      await api.delete(`/parties/${partyId}`);
+      setParties(prev => prev.filter(p => p.id !== partyId));
+      toast.success("Party cancelled successfully.");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to cancel party.");
+    }
+  };
 
   const handleUpdateStatus = async (partyId, ticketId, newStatus) => {
     try {
@@ -75,11 +90,21 @@ export default function HostDashboard() {
                     <h2 className="text-2xl font-bold text-gray-900">{party.title}</h2>
                     <p className="text-gray-500 text-sm mt-1">{formatDateTime(party.event_time)}</p>
                   </div>
-                  <div className="bg-[#10B981]/10 text-[#10B981] px-4 py-2 rounded-full font-bold flex items-center gap-2">
-                    <Users size={18} /> {confirmedCount} / {party.capacity} Confirmed
+                  
+                  {/* Updated Action Container */}
+                  <div className="flex items-center gap-3">
+                    <div className="bg-[#10B981]/10 text-[#10B981] px-4 py-2 rounded-full font-bold flex items-center gap-2">
+                      <Users size={18} /> {confirmedCount} / {party.capacity} Confirmed
+                    </div>
+                    <button 
+                      onClick={() => handleCancelParty(party.id)}
+                      className="w-10 h-10 rounded-full bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-100 transition-colors shadow-sm"
+                      title="Cancel Party"
+                    >
+                      <Trash2 size={18} />
+                    </button>
                   </div>
                 </div>
-
                 {/* Guest List */}
                 <div className="p-6">
                   {party.tickets.length === 0 ? (

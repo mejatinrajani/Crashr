@@ -3,28 +3,27 @@ import { useParams, Link } from 'react-router-dom';
 import { MapPin, Calendar, Users, Music, Loader2, ArrowLeft, Lock, Ticket, CheckCircle2, Clock } from 'lucide-react';
 import Button from '../components/Button';
 import api from '../services/api';
+import { toast } from 'sonner';
+import { supabase } from '../services/supabase';
 import { useAuth } from '../context/AuthContext';
 import { formatDateTime, formatCurrency } from '../utils/formatters';
 
 export default function PartyDetails() {
   const { id } = useParams();
-  const { user } = useAuth(); // Need to know if they are logged in to buy a ticket
+  const { user } = useAuth();
   
   const [party, setParty] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
-  // Ticketing State
   const [isPurchasing, setIsPurchasing] = useState(false);
-  const [ticketStatus, setTicketStatus] = useState(null); // 'confirmed', 'pending', 'waitlisted'
+  const [ticketStatus, setTicketStatus] = useState(null); 
 
   useEffect(() => {
     const fetchPartyDetails = async () => {
       try {
         const response = await api.get(`/parties/${id}`);
         setParty(response.data);
-        // Note: In a full production app, you would also fetch here to see if the user 
-        // already owns a ticket to set the initial ticketStatus.
       } catch (err) {
         console.error("Error fetching party details:", err);
         setError("We couldn't find this party. It may have been canceled or removed.");
@@ -34,11 +33,40 @@ export default function PartyDetails() {
     };
 
     fetchPartyDetails();
-  }, [id]);
+
+    // 1. Supabase Realtime Subscription
+    const channel = supabase.channel('custom-ticket-channel')
+      .on(
+        'postgres_changes', 
+        { 
+          event: 'UPDATE', 
+          schema: 'public', 
+          table: 'tickets',
+          filter: `party_id=eq.${id}` 
+        }, 
+        (payload) => {
+          // If the host just approved THIS user's ticket on the dashboard
+          if (payload.new.guest_id === user?.id) {
+            setTicketStatus(payload.new.status);
+            
+            if (payload.new.status === 'confirmed') {
+              toast.success("You're in! Your ticket was just approved.");
+            } else if (payload.new.status === 'denied') {
+              toast.error("Your ticket request was declined.");
+            }
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [id, user]);
 
   const handlePurchaseTicket = async () => {
     if (!user) {
-      alert("Please log in to purchase a ticket!"); // Fallback if they aren't logged in
+      toast.error("Please log in to purchase a ticket!");
       return;
     }
 
@@ -46,10 +74,15 @@ export default function PartyDetails() {
     try {
       const response = await api.post('/tickets', { party_id: id });
       setTicketStatus(response.data.status);
+      
+      if (response.data.status === 'pending') {
+        toast.success("Request sent! Waiting for host approval.");
+      } else {
+        toast.success("Ticket secured successfully!");
+      }
     } catch (err) {
       console.error("Purchase error:", err);
-      // Supabase UNIQUE constraint will throw an error if they already have a ticket
-      alert("Could not process ticket. You might already be on the list!"); 
+      toast.error("Could not process ticket. You might already be on the list!"); 
     } finally {
       setIsPurchasing(false);
     }

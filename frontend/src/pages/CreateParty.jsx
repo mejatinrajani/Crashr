@@ -3,6 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Loader2, AlertCircle, Shield, EyeOff, Users, Image as ImageIcon } from 'lucide-react';
 import Button from '../components/Button';
 import api from '../services/api';
+import { toast } from 'sonner';
+import { supabase } from '../services/supabase';
 import { useAuth } from '../context/AuthContext';
 
 export default function CreateParty() {
@@ -18,9 +20,9 @@ export default function CreateParty() {
     description: '',
     capacity: 26,
     requires_approval: false,
-    cover_image_url: ''
   });
   
+  const [imageFile, setImageFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
@@ -51,18 +53,42 @@ export default function CreateParty() {
     setIsSubmitting(true);
     setError(null);
 
-    const payload = {
-      ...formData,
-      price: parseFloat(formData.price) || 0,
-      capacity: parseInt(formData.capacity) || 26,
-    };
-
     try {
+      let finalImageUrl = '';
+
+      // 1. Upload image to Supabase Storage if one was selected
+      if (imageFile) {
+        const fileExt = imageFile.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('party-covers')
+          .upload(fileName, imageFile);
+
+        if (uploadError) {
+          throw new Error("Failed to upload image.");
+        }
+
+        const { data } = supabase.storage.from('party-covers').getPublicUrl(fileName);
+        finalImageUrl = data.publicUrl;
+      }
+
+      // 2. Prepare the payload for FastAPI
+      const payload = {
+        ...formData,
+        price: parseFloat(formData.price) || 0,
+        capacity: parseInt(formData.capacity) || 26,
+        cover_image_url: finalImageUrl 
+      };
+
+      // 3. Submit to backend
       const response = await api.post('/parties', payload);
+      toast.success("Party published successfully!");
       navigate(`/party/${response.data.id}`);
     } catch (err) {
       console.error("Error creating party:", err);
       setError("Failed to create your party. Please check your details and try again.");
+      toast.error("Failed to publish party.");
     } finally {
       setIsSubmitting(false);
     }
@@ -105,9 +131,14 @@ export default function CreateParty() {
           
           <div>
             <label className="flex items-center gap-2 text-sm font-bold text-gray-700 mb-2">
-              <ImageIcon size={16} /> Cover Image URL
+              <ImageIcon size={16} /> Cover Image
             </label>
-            <input type="url" name="cover_image_url" value={formData.cover_image_url} onChange={handleChange} placeholder="https://example.com/image.jpg" className="w-full p-4 bg-[#F9F9F8] border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#10B981]/50 focus:border-[#10B981] transition-all" />
+            <input 
+              type="file" 
+              accept="image/*"
+              onChange={(e) => setImageFile(e.target.files[0])}
+              className="w-full p-3 bg-[#F9F9F8] border border-gray-200 rounded-xl file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#E9D5FF] file:text-[#6B21A8] hover:file:bg-purple-300 transition-all cursor-pointer" 
+            />
           </div>
 
           <div>

@@ -197,3 +197,15 @@ async def update_ticket_status(ticket_id: str, update_data: TicketUpdate, curren
     # 2. Update the status
     response = supabase.table("tickets").update({"status": update_data.status}).eq("id", ticket_id).execute()
     return response.data[0]
+
+@app.delete("/parties/{party_id}")
+async def cancel_party(party_id: str, current_user = Depends(get_current_user)):
+    """Cancel a party and delete it from the feed."""
+    # Verify ownership
+    party_res = supabase.table("parties").select("host_id").eq("id", party_id).execute()
+    if not party_res.data or party_res.data[0]["host_id"] != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+        
+    # Delete the party (ensure Supabase foreign keys are set to ON DELETE CASCADE for tickets)
+    response = supabase.table("parties").delete().eq("id", party_id).execute()
+    return {"message": "Party cancelled"}

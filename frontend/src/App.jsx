@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { Toaster } from 'sonner';
 
 // Components
 import Navbar from './components/Navbar';
@@ -17,7 +18,7 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        {/* Flex layout ensures the footer pushes to the bottom if content is short */}
+        <Toaster position="bottom-right" richColors />
         <div className="min-h-screen bg-[#F9F9F8] font-sans flex flex-col">
           <Navbar />
           
