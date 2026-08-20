@@ -5,6 +5,7 @@ from supabase import create_client, Client
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
+from typing import Optional
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -65,10 +66,15 @@ class TicketCreate(BaseModel):
     party_id: str
 
 class ProfileUpdate(BaseModel):
-    full_name: Optional[str] = None
-    bio: Optional[str] = None
-    avatar_url: Optional[str] = None
-    favorite_genres: Optional[List[str]] = None
+    full_name: str
+    bio: Optional[str] = ""
+    avatar_url: Optional[str] = ""
+
+class PartyUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    event_time: Optional[str] = None
+    capacity: Optional[int] = None
 
 class TicketUpdate(BaseModel):
     status: str # 'confirmed' or 'denied'
@@ -209,3 +215,72 @@ async def cancel_party(party_id: str, current_user = Depends(get_current_user)):
     # Delete the party (ensure Supabase foreign keys are set to ON DELETE CASCADE for tickets)
     response = supabase.table("parties").delete().eq("id", party_id).execute()
     return {"message": "Party cancelled"}
+
+
+@app.post("/tickets/{ticket_id}/pay")
+async def process_ticket_payment(ticket_id: str, current_user = Depends(get_current_user)):
+    """Simulate a guest paying for an approved ticket."""
+    # 1. Verify the ticket belongs to this user
+    ticket_res = supabase.table("tickets").select("*").eq("id", ticket_id).execute()
+    if not ticket_res.data or ticket_res.data[0]["guest_id"] != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+        
+    # 2. Ensure the ticket is actually approved
+    if ticket_res.data[0]["status"] != "approved":
+        raise HTTPException(status_code=400, detail="Ticket is not approved for payment")
+        
+    # 3. Process "Payment" and confirm
+    response = supabase.table("tickets").update({"status": "confirmed"}).eq("id", ticket_id).execute()
+    return response.data[0]
+
+@app.get("/my-tickets")
+async def get_my_tickets(current_user = Depends(get_current_user)):
+    """Fetch all tickets belonging to the current guest with nested party details."""
+    response = supabase.table("tickets") \
+        .select("*, parties(*, profiles(full_name))") \
+        .eq("guest_id", current_user.id) \
+        .order("created_at", desc=True) \
+        .execute()
+    return response.data
+
+@app.put("/profiles/me")
+async def update_profile(profile_data: ProfileUpdate, current_user = Depends(get_current_user)):
+    """Update the logged-in user's public profile."""
+    # exclude_none ensures we don't overwrite existing data with nulls accidentally
+    response = supabase.table("profiles") \
+        .update(profile_data.model_dump(exclude_none=True)) \
+        .eq("id", current_user.id) \
+        .execute()
+    return response.data[0]
+
+@app.patch("/parties/{party_id}")
+async def update_party(party_id: str, update_data: PartyUpdate, current_user = Depends(get_current_user)):
+    """Allow hosts to update basic party details."""
+    # 1. Verify ownership
+    party_res = supabase.table("parties").select("host_id").eq("id", party_id).execute()
+    if not party_res.data or party_res.data[0]["host_id"] != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to edit this party")
+        
+    # 2. Apply updates
+    response = supabase.table("parties") \
+        .update(update_data.model_dump(exclude_none=True)) \
+        .eq("id", party_id) \
+        .execute()
+    return response.data[0]
+
+@app.patch("/tickets/{ticket_id}/checkin")
+async def toggle_checkin(ticket_id: str, current_user = Depends(get_current_user)):
+    """Toggle the checked_in status of a ticket (Host only)."""
+    # Verify the current user is the host
+    ticket_res = supabase.table("tickets").select("party_id, checked_in").eq("id", ticket_id).execute()
+    if not ticket_res.data:
+        raise HTTPException(status_code=404, detail="Ticket not found")
+        
+    party_res = supabase.table("parties").select("host_id").eq("id", ticket_res.data[0]["party_id"]).execute()
+    if party_res.data[0]["host_id"] != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+        
+    # Toggle the status
+    current_status = ticket_res.data[0].get("checked_in", False)
+    response = supabase.table("tickets").update({"checked_in": not current_status}).eq("id", ticket_id).execute()
+    return response.data[0]
