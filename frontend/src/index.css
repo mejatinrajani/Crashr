@@ -1,1 +1,30 @@
 @import "tailwindcss";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    /* The premium cream base and warm espresso text */
+    @apply bg-[#FDFBF7] text-[#292524] antialiased;
+    /* Warm highlight color when users select text */
+    @apply selection:bg-[#D97706]/20 selection:text-[#D97706];
+  }
+}
+
+@layer utilities {
+  /* Hides scrollbars for our sleek horizontal swipe carousels */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  /* The signature frosted glass look we'll use for the Navbar and floating cards */
+  .glass-panel {
+    @apply bg-[#FDFBF7]/70 backdrop-blur-xl border border-white/60 shadow-[0_8px_32px_rgba(217,119,6,0.05)];
+  }
+}
