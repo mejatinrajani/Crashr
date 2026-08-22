@@ -12,10 +12,13 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.109.0",
     "axios": "^1.19.0",
+    "framer-motion": "^13.1.1",
     "lucide-react": "^1.33.0",
+    "mapbox-gl": "^3.29.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-hot-toast": "^2.6.0",
+    "react-map-gl": "^8.1.2",
     "react-router-dom": "^7.18.2"
   },
   "devDependencies": {

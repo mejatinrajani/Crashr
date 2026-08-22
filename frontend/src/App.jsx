@@ -12,7 +12,7 @@ import PartyDetails from './pages/PartyDetails';
 import CreateParty from './pages/CreateParty';
 import Auth from './pages/Auth';
 import Profile from './pages/Profile';
-import MyTickets from './pages/MyTickets'
+import MyTickets from './pages/MyTickets';
 import HostDashboard from './pages/HostDashboard';
 import EditParty from './pages/EditParty';
 
@@ -21,11 +21,13 @@ function App() {
     <AuthProvider>
       <Router>
         <Toaster position="bottom-right" richColors />
-        <div className="min-h-screen bg-[#F9F9F8] font-sans flex flex-col">
+        <div className="min-h-screen bg-[#FDFBF7] font-sans flex flex-col selection:bg-[#D97706]/20">
+          
+          {/* Unified, Professional Global Navbar */}
           <Navbar />
           
-          {/* Main Content Wrapper */}
-          <main className="flex-grow">  
+          {/* Main Content Wrapper - No conflicting layouts */}
+          <main className="flex-grow flex flex-col">  
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/auth" element={<Auth />} />

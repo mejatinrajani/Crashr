@@ -5,6 +5,7 @@ import Button from '../components/Button';
 import api from '../services/api';
 import { toast } from 'react-hot-toast';
 import { supabase } from '../services/supabase';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { formatDateTime, formatCurrency } from '../utils/formatters';
 
@@ -18,6 +19,8 @@ export default function PartyDetails() {
   
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [ticketStatus, setTicketStatus] = useState(null); 
+
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);  
 
   useEffect(() => {
     const fetchPartyDetails = async () => {
@@ -110,197 +113,197 @@ export default function PartyDetails() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-[60vh]">
-        <Loader2 className="animate-spin text-[#10B981]" size={48} />
+      <div className="flex flex-col justify-center items-center min-h-screen gap-6 pt-20">
+        <Loader2 className="animate-spin text-[#D97706]" size={56} strokeWidth={1.5} />
+        <p className="text-[#D97706] font-bold tracking-[0.2em] uppercase text-sm animate-pulse">
+          Locating the party...
+        </p>
       </div>
     );
   }
 
   if (error || !party) {
     return (
-      <div className="max-w-4xl mx-auto p-8 text-center pt-20">
-        <div className="bg-red-50 text-red-500 p-8 rounded-2xl border border-red-100 font-medium mb-6">
-          {error || "Party not found."}
+      <div className="max-w-4xl mx-auto px-6 pt-40 text-center">
+        <div className="bg-[#292524] text-[#FDFBF7] p-8 rounded-3xl font-bold tracking-tight shadow-xl shadow-[#292524]/10 border border-[#1C1917] mb-8">
+          {error || "We couldn't find this party. It may have been canceled or removed."}
         </div>
         <Link to="/">
-          <Button variant="rounded" color="lavender">Back to Home</Button>
+          <Button variant="rounded" color="gold">Back to the Feed</Button>
         </Link>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-8 animate-in slide-in-from-bottom-4 duration-500">
-      <Link to="/" className="inline-flex items-center gap-2 text-gray-500 hover:text-[#10B981] transition-colors mb-6 font-medium">
-        <ArrowLeft size={20} /> Back to Feed
-      </Link>
-
-      {/* Cover Image */}
-      {party.cover_image_url && (
-        <div className="w-full h-64 md:h-80 rounded-3xl mb-8 overflow-hidden bg-gray-200">
+    <div className="relative min-h-screen bg-black overflow-hidden animate-in fade-in duration-1000">
+      
+      {/* 1. FULL SCREEN IMMERSIVE BACKGROUND */}
+      <div className="fixed inset-0 z-0">
+        {party.cover_image_url ? (
           <img 
             src={party.cover_image_url} 
             alt={party.title} 
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover opacity-80 scale-105 animate-out zoom-out duration-[10000ms]"
           />
-        </div>
-      )}
-
-      {/* Hero Section */}
-      <div className="bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-gray-100 mb-8 relative overflow-hidden">
-        {!party.cover_image_url && (
-          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#10B981] to-[#E9D5FF]"></div>
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-[#292524] to-[#1C1917]"></div>
         )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
+      </div>
+
+      {/* 2. TOP FLOATING NAVIGATION */}
+      <div className="fixed top-8 left-6 z-20">
+        <Link to="/" className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-white/20 backdrop-blur-md text-white hover:bg-white/40 transition-colors shadow-lg">
+          <ArrowLeft size={20} strokeWidth={3} />
+        </Link>
+      </div>
+
+      {/* 3. THE FLOATING BOTTOM DOCK */}
+      <div className="relative z-10 min-h-screen flex flex-col justify-end p-4 md:p-8 pointer-events-none">
         
-        <div className="flex justify-between items-start flex-wrap gap-4 mb-4">
-          <h1 className="text-4xl md:text-5xl font-black text-gray-900">{party.title}</h1>
-          {party.requires_approval && (
-            <span className="bg-[#E9D5FF]/30 text-[#6B21A8] px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1">
-              <Lock size={12} /> Approval Required
-            </span>
-          )}
-        </div>
-        
-        <div className="flex items-center gap-3 mb-8">
-          {party.profiles?.avatar_url ? (
-            <img src={party.profiles.avatar_url} alt="Host" className="w-10 h-10 rounded-full object-cover" />
-          ) : (
-            <div className="w-10 h-10 rounded-full bg-[#E9D5FF] flex items-center justify-center text-[#6B21A8] font-bold">
-              {party.profiles?.full_name?.charAt(0) || '?'}
-            </div>
-          )}
-          <p className="text-xl text-[#6B21A8] font-medium">
-            Hosted by {party.profiles?.full_name || 'Anonymous Host'}
-          </p>
-        </div>
-        
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-6 text-gray-600">
-          <div className="flex flex-col gap-2">
-            <Calendar className="text-[#10B981]" />
-            <span className="font-semibold text-gray-900">When</span>
-            <span className="text-sm">{formatDateTime(party.event_time)}</span>
-          </div>
+        <div className="w-full max-w-5xl mx-auto bg-white/10 backdrop-blur-2xl p-6 md:p-10 rounded-[2.5rem] border border-white/20 shadow-2xl flex flex-col md:flex-row gap-8 items-end pointer-events-auto">
           
-          <div className="flex flex-col gap-2">
-            <MapPin className="text-[#10B981]" />
-            <span className="font-semibold text-gray-900">Location</span>
-            {ticketStatus === 'confirmed' ? (
-              <span className="text-sm font-bold text-[#10B981]">{party.exact_address}</span>
-            ) : (
-              <span className="text-sm flex flex-col">
-                {party.location}
-                <span className="text-xs text-gray-400 mt-1 flex items-center gap-1">
-                  <Lock size={10} /> Address hidden until confirmed
+          {/* Info Section */}
+          <div className="flex-1 w-full text-white">
+            <div className="flex items-center gap-3 mb-4">
+              {party.requires_approval && (
+                <span className="bg-white/20 text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                  <Lock size={12} /> Approval Required
                 </span>
+              )}
+              <span className="bg-[#D97706] text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
+                {party.capacity} Guest Limit
               </span>
-            )}
-          </div>
-          
-          <div className="flex flex-col gap-2">
-            <Users className="text-[#10B981]" />
-            <span className="font-semibold text-gray-900">Capacity</span>
-            <span className="text-sm">{party.capacity} Guests Max</span>
-          </div>
-        </div>
-      </div>
-
-      {/* About & Checkout Section */}
-      <div className="grid md:grid-cols-3 gap-8">
-        <div className="md:col-span-2 space-y-6">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-3">The Vibe</h2>
-            <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">
-              {party.description || "No description provided by the host."}
-            </p>
-          </div>
-        </div>
-
-        {/* Sticky Ticket Box */}
-        <div className="relative">
-          <div className="bg-white p-6 rounded-2xl shadow-md border border-gray-100 sticky top-24">
-            <div className="flex justify-between items-end mb-6">
-              <span className="text-3xl font-black text-[#10B981]">{formatCurrency(party.price)}</span>
-              <span className="text-sm text-gray-500 font-medium">per guest</span>
             </div>
+            
+            <h1 className="text-4xl md:text-6xl font-black tracking-tighter mb-2 leading-none">
+              {party.title}
+            </h1>
+            
+            <p className="text-white/70 font-medium text-lg mb-6 max-w-xl line-clamp-2">
+              {party.description || "No description provided."}
+            </p>
 
-            {/* Logic Gate: Is Host vs Is Guest */}
-            {isHost ? (
-              <Link to="/dashboard">
-                <Button variant="rectangular" color="lavender" className="w-full text-lg py-3 mb-3">
-                  Manage Guest List
-                </Button>
-              </Link>
-            ) : !ticketStatus ? (
-              <Button 
-                onClick={handlePurchaseTicket} 
-                variant="rectangular" 
-                color="green" 
-                disabled={isPurchasing}
-                className="w-full text-lg py-3 mb-3 disabled:opacity-70"
-              >
-                {isPurchasing ? <Loader2 className="animate-spin mx-auto" size={24} /> : "Request Ticket"}
-              </Button>
-            ) : ticketStatus === 'pending' ? (
-              <div className="bg-amber-50 text-amber-600 p-4 rounded-xl flex items-center justify-center gap-2 font-bold mb-3 border border-amber-200">
-                <Clock size={20} /> Request Pending
+            <div className="flex flex-wrap gap-6 text-sm font-bold text-white/90">
+              <div className="flex items-center gap-2">
+                <Calendar className="text-[#D97706]" size={18} /> {formatDateTime(party.event_time)}
               </div>
-            ) : ticketStatus === 'approved' ? (
-              <Button 
-                onClick={handlePayment} 
-                variant="rectangular" 
-                color="green" 
-                disabled={isPurchasing}
-                className="w-full text-lg py-3 mb-3 animate-pulse"
-              >
-                {isPurchasing ? <Loader2 className="animate-spin mx-auto" size={24} /> : "Pay to Confirm Spot"}
-              </Button>
-            ) : ticketStatus === 'confirmed' ? (
-              <div className="bg-[#10B981]/10 text-[#10B981] p-4 rounded-xl flex items-center justify-center gap-2 font-bold mb-3">
-                <CheckCircle2 size={20} /> You're Going!
+              <div className="flex items-center gap-2">
+                <MapPin className="text-[#D97706]" size={18} /> 
+                {ticketStatus === 'confirmed' ? party.exact_address : `${party.location} (Hidden)`}
               </div>
-            ) : (
-              <div className="bg-gray-100 text-gray-600 p-4 rounded-xl flex items-center justify-center gap-2 font-bold mb-3">
-                <Ticket size={20} /> On Waitlist
-              </div>
-            )}
-
-            {!user && !ticketStatus && (
-              <p className="text-xs text-center text-red-400 font-medium mb-2">You must log in to buy a ticket.</p>
-            )}
-            <p className="text-xs text-center text-gray-400">Secure transaction via Crashr</p>
+            </div>
           </div>
 
-            {/* Dynamic Ticket Button Based on Status */}
-            {!ticketStatus ? (
-              <Button 
-                onClick={handlePurchaseTicket} 
-                variant="rounded" 
-                color="green" 
-                disabled={isPurchasing}
-                className="w-full text-lg py-3 mb-3 disabled:opacity-70"
+          {/* Trigger Button (Replaces the massive checkout box) */}
+          <div className="w-full md:w-auto shrink-0">
+             <Button 
+                onClick={() => setIsDrawerOpen(true)} 
+                variant="rectangular" 
+                color="gold" 
+                className="w-full md:w-[240px] py-5 text-lg shadow-2xl shadow-amber-900/40"
               >
-                {isPurchasing ? <Loader2 className="animate-spin mx-auto" size={24} /> : "Get Ticket"}
+                Access Tickets
               </Button>
-            ) : ticketStatus === 'confirmed' ? (
-              <div className="bg-[#10B981]/10 text-[#10B981] p-4 rounded-xl flex items-center justify-center gap-2 font-bold mb-3">
-                <CheckCircle2 size={20} /> You're Going!
-              </div>
-            ) : ticketStatus === 'pending' ? (
-              <div className="bg-amber-50 text-amber-600 p-4 rounded-xl flex items-center justify-center gap-2 font-bold mb-3 border border-amber-200">
-                <Clock size={20} /> Request Pending
-              </div>
-            ) : (
-              <div className="bg-gray-100 text-gray-600 p-4 rounded-xl flex items-center justify-center gap-2 font-bold mb-3">
-                <Ticket size={20} /> On Waitlist
-              </div>
-            )}
-
-            {!user && !ticketStatus && (
-              <p className="text-xs text-center text-red-400 font-medium mb-2">You must log in to buy a ticket.</p>
-            )}
-            <p className="text-xs text-center text-gray-400">Secure transaction via Crashr</p>
           </div>
+
         </div>
       </div>
+
+      {/* 4. THE BOTTOM SHEET DRAWER (Framer Motion) */}
+      <AnimatePresence>
+        {isDrawerOpen && (
+          <>
+            {/* Darkened Backdrop */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsDrawerOpen(false)}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 cursor-pointer"
+            />
+            
+            {/* The Drawer Panel */}
+            <motion.div 
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="fixed bottom-0 left-0 w-full z-50 flex justify-center pointer-events-none"
+            >
+              <div className="bg-[#FDFBF7] w-full max-w-2xl rounded-t-[2.5rem] p-8 pb-12 shadow-[0_-8px_32px_rgba(0,0,0,0.5)] pointer-events-auto border-t border-white/20">
+                
+                {/* Drag Handle */}
+                <div className="w-12 h-1.5 bg-[#292524]/20 rounded-full mx-auto mb-8" />
+                
+                <div className="flex justify-between items-end mb-8 pb-8 border-b border-[#292524]/5">
+                  <span className="text-5xl font-black tracking-tighter text-[#D97706] leading-none">
+                    {formatCurrency(party.price)}
+                  </span>
+                  <span className="text-xs font-black uppercase tracking-widest text-[#78716C] mb-1">
+                    per guest
+                  </span>
+                </div>
+
+                {/* Ticket Logic Gate */}
+                <div className="w-full space-y-4">
+                  {isHost ? (
+                    <Link to="/dashboard">
+                      <Button variant="rectangular" color="espresso" className="w-full py-5 text-lg">
+                        Manage Guest List
+                      </Button>
+                    </Link>
+                  ) : !ticketStatus ? (
+                    <Button 
+                      onClick={handlePurchaseTicket} 
+                      variant="rectangular" 
+                      color="gold" 
+                      disabled={isPurchasing}
+                      className="w-full py-5 text-lg shadow-amber-900/20 disabled:opacity-70"
+                    >
+                      {isPurchasing ? <Loader2 className="animate-spin mx-auto" size={24} /> : "Request Ticket"}
+                    </Button>
+                  ) : ticketStatus === 'pending' ? (
+                    <div className="bg-[#D97706]/10 text-[#D97706] p-5 rounded-2xl flex items-center justify-center gap-2 font-black tracking-wide border border-[#D97706]/20">
+                      <Clock size={24} /> Request Pending
+                    </div>
+                  ) : ticketStatus === 'approved' ? (
+                    <Button 
+                      onClick={handlePayment} 
+                      variant="rectangular" 
+                      color="gold" 
+                      disabled={isPurchasing}
+                      className="w-full py-5 text-lg shadow-amber-900/20 animate-pulse disabled:opacity-70 disabled:animate-none"
+                    >
+                      {isPurchasing ? <Loader2 className="animate-spin mx-auto" size={24} /> : "Pay to Confirm Spot"}
+                    </Button>
+                  ) : ticketStatus === 'confirmed' ? (
+                    <div className="bg-[#292524] text-[#FDFBF7] p-5 rounded-2xl flex items-center justify-center gap-2 font-black tracking-wide shadow-md">
+                      <CheckCircle2 size={24} /> You're Going!
+                    </div>
+                  ) : (
+                    <div className="bg-gray-100 text-[#78716C] p-5 rounded-2xl flex items-center justify-center gap-2 font-black tracking-wide">
+                      <Ticket size={24} /> On Waitlist
+                    </div>
+                  )}
+
+                  {!user && !ticketStatus && (
+                    <p className="text-[10px] text-center font-black uppercase tracking-widest text-red-400 mt-4">
+                      Log in to join the list.
+                    </p>
+                  )}
+                  
+                  <div className="mt-6 flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#78716C]/60">
+                    <Lock size={10} /> Secure transaction via Crashr
+                  </div>
+                </div>
+
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }

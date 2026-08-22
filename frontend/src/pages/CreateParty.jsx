@@ -28,13 +28,15 @@ export default function CreateParty() {
 
   if (!user) {
     return (
-      <div className="max-w-2xl mx-auto p-8 text-center pt-20">
-        <div className="bg-white p-10 rounded-3xl shadow-sm border border-gray-100">
-          <h2 className="text-3xl font-black text-gray-900 mb-4">Host Access Only</h2>
-          <p className="text-gray-500 mb-8">You need to log in to create and host a party.</p>
-          <Link to="/">
-            <Button variant="rectangular" color="green">Go Back</Button>
-          </Link>
+      <div className="max-w-3xl mx-auto px-6 pt-40 text-center">
+        <div className="bg-[#292524] text-[#FDFBF7] p-12 rounded-[2.5rem] shadow-xl shadow-[#292524]/10 border border-[#1C1917] mb-8">
+          <h2 className="text-4xl md:text-5xl font-black mb-4 tracking-tighter">Host Access Only.</h2>
+          <p className="text-[#A8A29E] font-medium mb-8 text-lg">You need to log in to curate and host an event.</p>
+          <div className="flex justify-center">
+            <Link to="/">
+              <Button variant="rounded" color="gold">Back to the Feed</Button>
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -95,113 +97,136 @@ export default function CreateParty() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-8 animate-in slide-in-from-bottom-4 duration-500">
-      <div className="mb-10 text-center">
-        <h1 className="text-4xl font-black text-gray-900 mb-3">Host a Party</h1>
-        <p className="text-gray-500">Set the vibe, control the guest list, and manage logistics.</p>
-      </div>
-
-      {error && (
-        <div className="mb-6 bg-red-50 text-red-500 p-4 rounded-xl border border-red-100 flex items-center gap-2 font-medium">
-          <AlertCircle size={20} /> {error}
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 space-y-8">
+    <div className="min-h-screen pt-32 pb-24 animate-in fade-in duration-700">
+      <div className="max-w-3xl mx-auto px-6 md:px-8">
         
-        {/* Basic Details */}
-        <div className="space-y-6">
-          <h3 className="text-xl font-bold text-gray-900 border-b border-gray-100 pb-2">1. The Basics</h3>
-          
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">Party Title</label>
-            <input type="text" name="title" required value={formData.title} onChange={handleChange} placeholder="e.g., Neon Basement Rave" className="w-full p-4 bg-[#F9F9F8] border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#10B981]/50 focus:border-[#10B981] transition-all" />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Date & Time</label>
-              <input type="datetime-local" name="event_time" required value={formData.event_time} onChange={handleChange} className="w-full p-4 bg-[#F9F9F8] border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#10B981]/50 focus:border-[#10B981] transition-all text-gray-600" />
-            </div>
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Ticket Price ($)</label>
-              <input type="number" name="price" min="0" step="0.01" required value={formData.price} onChange={handleChange} placeholder="15.00" className="w-full p-4 bg-[#F9F9F8] border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#10B981]/50 focus:border-[#10B981] transition-all" />
-            </div>
-          </div>
-          
-          <div>
-            <label className="flex items-center gap-2 text-sm font-bold text-gray-700 mb-2">
-              <ImageIcon size={16} /> Cover Image
-            </label>
-            <input 
-              type="file" 
-              accept="image/*"
-              onChange={(e) => setImageFile(e.target.files[0])}
-              className="w-full p-3 bg-[#F9F9F8] border border-gray-200 rounded-xl file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#E9D5FF] file:text-[#6B21A8] hover:file:bg-purple-300 transition-all cursor-pointer" 
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">Description / Vibe</label>
-            <textarea name="description" rows="3" required value={formData.description} onChange={handleChange} placeholder="Tell your guests what to expect..." className="w-full p-4 bg-[#F9F9F8] border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#10B981]/50 focus:border-[#10B981] transition-all resize-none"></textarea>
-          </div>
+        {/* Cinematic Header */}
+        <div className="mb-12 relative text-center md:text-left">
+          <h1 className="text-5xl md:text-7xl font-black text-[#292524] tracking-tighter mb-4">
+            Host a Party.
+          </h1>
+          <p className="text-xl text-[#78716C] font-medium tracking-tight">
+            Set the vibe, control the list, and manage the night.
+          </p>
         </div>
 
-        {/* Logistics & Privacy */}
-        <div className="space-y-6 pt-4">
-          <h3 className="text-xl font-bold text-gray-900 border-b border-gray-100 pb-2">2. Logistics & Privacy</h3>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Public Location</label>
-              <input type="text" name="location" required value={formData.location} onChange={handleChange} placeholder="e.g., Downtown Brooklyn" className="w-full p-4 bg-[#F9F9F8] border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#10B981]/50 focus:border-[#10B981] transition-all" />
-              <p className="text-xs text-gray-500 mt-2">Visible to everyone on the feed.</p>
-            </div>
-            <div>
-              <label className="flex items-center gap-2 text-sm font-bold text-gray-700 mb-2">
-                <EyeOff size={16} className="text-[#6B21A8]" /> Exact Address
-              </label>
-              <input type="text" name="exact_address" required value={formData.exact_address} onChange={handleChange} placeholder="123 Main St, Apt 4B" className="w-full p-4 bg-[#F9F9F8] border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#10B981]/50 focus:border-[#10B981] transition-all" />
-              <p className="text-xs text-gray-500 mt-2">Only revealed to confirmed guests.</p>
-            </div>
+        {error && (
+          <div className="mb-8 bg-red-500/10 text-red-600 p-5 rounded-2xl border border-red-500/20 flex items-center gap-3 font-bold tracking-tight">
+            <AlertCircle size={20} className="shrink-0" /> {error}
           </div>
+        )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <form onSubmit={handleSubmit} className="bg-white/40 backdrop-blur-lg p-8 md:p-12 rounded-[2.5rem] shadow-[0_8px_32px_rgba(217,119,6,0.05)] border border-white/60 space-y-12 relative overflow-hidden">
+          
+          {/* Background Ambient Glow */}
+          <div className="absolute top-0 right-0 w-96 h-96 bg-[#D97706]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
+
+          {/* Section 1: Basic Details */}
+          <div className="space-y-8 relative z-10">
+            <h3 className="text-sm font-black text-[#D97706] uppercase tracking-[0.2em] border-b border-[#292524]/5 pb-4">
+              1. The Basics
+            </h3>
+            
             <div>
-              <label className="flex items-center gap-2 text-sm font-bold text-gray-700 mb-2">
-                <Users size={16} /> Max Capacity
-              </label>
-              <input type="number" name="capacity" min="1" required value={formData.capacity} onChange={handleChange} className="w-full p-4 bg-[#F9F9F8] border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#10B981]/50 focus:border-[#10B981] transition-all" />
+              <label className="block text-[10px] font-black uppercase tracking-widest text-[#78716C] mb-3">Party Title</label>
+              <input type="text" name="title" required value={formData.title} onChange={handleChange} placeholder="e.g., Midnight Rooftop Session" className="w-full p-5 bg-white/60 border border-white/80 rounded-2xl focus:outline-none focus:ring-4 focus:ring-[#D97706]/10 focus:border-[#D97706]/30 text-[#292524] font-bold text-lg transition-all shadow-sm placeholder:text-[#292524]/20" />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div>
+                <label className="block text-[10px] font-black uppercase tracking-widest text-[#78716C] mb-3">Date & Time</label>
+                <input type="datetime-local" name="event_time" required value={formData.event_time} onChange={handleChange} className="w-full p-5 bg-white/60 border border-white/80 rounded-2xl focus:outline-none focus:ring-4 focus:ring-[#D97706]/10 focus:border-[#D97706]/30 text-[#292524] font-bold text-lg transition-all shadow-sm" />
+              </div>
+              <div>
+                <label className="block text-[10px] font-black uppercase tracking-widest text-[#78716C] mb-3">Ticket Price ($)</label>
+                <input type="number" name="price" min="0" step="0.01" required value={formData.price} onChange={handleChange} placeholder="15.00" className="w-full p-5 bg-white/60 border border-white/80 rounded-2xl focus:outline-none focus:ring-4 focus:ring-[#D97706]/10 focus:border-[#D97706]/30 text-[#292524] font-bold text-lg transition-all shadow-sm placeholder:text-[#292524]/20" />
+              </div>
             </div>
             
-            <div className="flex flex-col justify-center pt-6">
-              <label className="flex items-center gap-3 cursor-pointer group">
-                <div className="relative">
-                  <input type="checkbox" name="requires_approval" checked={formData.requires_approval} onChange={handleChange} className="sr-only" />
-                  <div className={`block w-14 h-8 rounded-full transition-colors ${formData.requires_approval ? 'bg-[#10B981]' : 'bg-gray-300'}`}></div>
-                  <div className={`dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-transform ${formData.requires_approval ? 'transform translate-x-6' : ''}`}></div>
-                </div>
-                <div>
-                  <div className="font-bold text-gray-700 flex items-center gap-2">
-                    <Shield size={16} className="text-[#10B981]" /> Require Approval
-                  </div>
-                  <p className="text-xs text-gray-500">Manually approve guests before they buy.</p>
-                </div>
+            <div>
+              <label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#78716C] mb-3">
+                <ImageIcon size={14} /> Cover Image
               </label>
+              <input 
+                type="file" 
+                accept="image/*"
+                onChange={(e) => setImageFile(e.target.files[0])}
+                className="w-full p-4 bg-white/60 border border-white/80 rounded-2xl file:mr-5 file:py-2.5 file:px-6 file:rounded-full file:border-0 file:text-xs file:font-black file:uppercase file:tracking-widest file:bg-[#292524] file:text-[#FDFBF7] hover:file:bg-[#1C1917] file:cursor-pointer transition-all shadow-sm cursor-pointer text-sm font-bold text-[#78716C]" 
+              />
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-black uppercase tracking-widest text-[#78716C] mb-3">Description / Vibe</label>
+              <textarea name="description" rows="4" required value={formData.description} onChange={handleChange} placeholder="What should guests expect? What's the dress code?" className="w-full p-5 bg-white/60 border border-white/80 rounded-2xl focus:outline-none focus:ring-4 focus:ring-[#D97706]/10 focus:border-[#D97706]/30 text-[#292524] font-medium leading-relaxed transition-all shadow-sm resize-none placeholder:text-[#292524]/20"></textarea>
             </div>
           </div>
-        </div>
 
-        <div className="pt-8">
-          <Button type="submit" variant="rectangular" color="lavender" disabled={isSubmitting} className="w-full py-4 text-lg disabled:opacity-70 disabled:cursor-not-allowed">
-            {isSubmitting ? (
-              <span className="flex items-center gap-2">
-                <Loader2 className="animate-spin" size={20} /> Publishing...
-              </span>
-            ) : "Publish Party"}
-          </Button>
-        </div>
-      </form>
+          {/* Section 2: Logistics & Privacy */}
+          <div className="space-y-8 relative z-10 pt-4">
+            <h3 className="text-sm font-black text-[#D97706] uppercase tracking-[0.2em] border-b border-[#292524]/5 pb-4">
+              2. Logistics & Privacy
+            </h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div>
+                <label className="block text-[10px] font-black uppercase tracking-widest text-[#78716C] mb-3">Public Location</label>
+                <input type="text" name="location" required value={formData.location} onChange={handleChange} placeholder="e.g., Downtown Brooklyn" className="w-full p-5 bg-white/60 border border-white/80 rounded-2xl focus:outline-none focus:ring-4 focus:ring-[#D97706]/10 focus:border-[#D97706]/30 text-[#292524] font-bold text-lg transition-all shadow-sm placeholder:text-[#292524]/20" />
+                <p className="text-[10px] font-bold uppercase tracking-widest text-[#D97706]/60 mt-3">Visible to everyone on the feed.</p>
+              </div>
+              <div>
+                <label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#78716C] mb-3">
+                  <EyeOff size={14} /> Exact Address
+                </label>
+                <input type="text" name="exact_address" required value={formData.exact_address} onChange={handleChange} placeholder="123 Main St, Apt 4B" className="w-full p-5 bg-white/60 border border-white/80 rounded-2xl focus:outline-none focus:ring-4 focus:ring-[#D97706]/10 focus:border-[#D97706]/30 text-[#292524] font-bold text-lg transition-all shadow-sm placeholder:text-[#292524]/20" />
+                <p className="text-[10px] font-bold uppercase tracking-widest text-[#D97706]/60 mt-3">Only revealed to confirmed guests.</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center border-t border-[#292524]/5 pt-8">
+              <div>
+                <label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#78716C] mb-3">
+                  <Users size={14} /> Max Capacity
+                </label>
+                <input type="number" name="capacity" min="1" required value={formData.capacity} onChange={handleChange} className="w-full p-5 bg-white/60 border border-white/80 rounded-2xl focus:outline-none focus:ring-4 focus:ring-[#D97706]/10 focus:border-[#D97706]/30 text-[#292524] font-bold text-lg transition-all shadow-sm" />
+              </div>
+              
+              <div className="flex flex-col justify-center">
+                <label className="flex items-center gap-4 cursor-pointer group p-4 rounded-2xl hover:bg-white/40 transition-colors">
+                  <div className="relative">
+                    <input type="checkbox" name="requires_approval" checked={formData.requires_approval} onChange={handleChange} className="sr-only" />
+                    <div className={`block w-14 h-8 rounded-full transition-colors duration-300 ${formData.requires_approval ? 'bg-[#D97706]' : 'bg-[#292524]/10'}`}></div>
+                    <div className={`absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-transform duration-300 shadow-sm ${formData.requires_approval ? 'transform translate-x-6' : ''}`}></div>
+                  </div>
+                  <div>
+                    <div className="font-black text-[#292524] tracking-tight flex items-center gap-2 mb-1">
+                      <Shield size={16} className={formData.requires_approval ? 'text-[#D97706]' : 'text-[#78716C]'} /> 
+                      Require Approval
+                    </div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#78716C]">Review guests before they buy.</p>
+                  </div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-8 relative z-10 border-t border-[#292524]/5">
+            <Button 
+              type="submit" 
+              variant="rectangular" 
+              color="gold" 
+              disabled={isSubmitting} 
+              className="w-full py-5 text-lg shadow-amber-900/20 disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+              {isSubmitting ? (
+                <span className="flex items-center gap-3">
+                  <Loader2 className="animate-spin" size={20} /> Publishing...
+                </span>
+              ) : "Publish Party"}
+            </Button>
+          </div>
+          
+        </form>
+      </div>
     </div>
   );
 }

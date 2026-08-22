@@ -59,32 +59,102 @@ export default function EditParty() {
     }
   };
 
-  if (loading) return <div className="flex justify-center mt-20"><Loader2 className="animate-spin text-[#10B981]" size={48} /></div>;
+  if (loading) {
+    return (
+      <div className="flex flex-col justify-center items-center min-h-screen gap-6 pt-20">
+        <Loader2 className="animate-spin text-[#D97706]" size={56} strokeWidth={1.5} />
+        <p className="text-[#D97706] font-bold tracking-[0.2em] uppercase text-sm animate-pulse">
+          Fetching party details...
+        </p>
+      </div>
+    );
+  }
 
   return (
-    <div className="max-w-2xl mx-auto p-8 animate-in slide-in-from-bottom-4">
-      <h1 className="text-4xl font-black text-gray-900 mb-8">Edit Party</h1>
-      <form onSubmit={handleSubmit} className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 space-y-6">
-        <div>
-          <label className="block text-sm font-bold text-gray-700 mb-2">Title</label>
-          <input type="text" required value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} className="w-full p-4 bg-[#F9F9F8] border border-gray-200 rounded-xl focus:ring-[#10B981]" />
+    <div className="min-h-screen pt-32 pb-24 animate-in fade-in duration-700">
+      <div className="max-w-2xl mx-auto px-6 md:px-8">
+        
+        {/* Cinematic Header */}
+        <div className="mb-12 relative">
+          <h1 className="text-5xl md:text-6xl font-black text-[#292524] tracking-tighter mb-4">
+            Edit Party.
+          </h1>
+          <p className="text-xl text-[#78716C] font-medium tracking-tight">
+            Tweak the details and perfect the vibe.
+          </p>
         </div>
-        <div>
-          <label className="block text-sm font-bold text-gray-700 mb-2">Date & Time</label>
-          <input type="datetime-local" required value={formData.event_time} onChange={(e) => setFormData({...formData, event_time: e.target.value})} className="w-full p-4 bg-[#F9F9F8] border border-gray-200 rounded-xl focus:ring-[#10B981]" />
-        </div>
-        <div>
-          <label className="block text-sm font-bold text-gray-700 mb-2">Capacity</label>
-          <input type="number" required value={formData.capacity} onChange={(e) => setFormData({...formData, capacity: parseInt(e.target.value)})} className="w-full p-4 bg-[#F9F9F8] border border-gray-200 rounded-xl focus:ring-[#10B981]" />
-        </div>
-        <div>
-          <label className="block text-sm font-bold text-gray-700 mb-2">Description</label>
-          <textarea rows="4" required value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} className="w-full p-4 bg-[#F9F9F8] border border-gray-200 rounded-xl focus:ring-[#10B981] resize-none"></textarea>
-        </div>
-        <Button type="submit" variant="rectangular" color="green" disabled={saving} className="w-full py-4 text-lg">
-          {saving ? <Loader2 className="animate-spin mx-auto" size={24} /> : "Save Changes"}
-        </Button>
-      </form>
+
+        <form onSubmit={handleSubmit} className="bg-white/40 backdrop-blur-lg p-8 md:p-12 rounded-[2.5rem] shadow-[0_8px_32px_rgba(217,119,6,0.05)] border border-white/60 space-y-8 relative overflow-hidden">
+          
+          {/* Subtle background glow */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-[#D97706]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
+
+          <div className="relative z-10">
+            <label className="block text-[10px] font-black uppercase tracking-widest text-[#78716C] mb-3">
+              Title
+            </label>
+            <input 
+              type="text" 
+              required 
+              value={formData.title} 
+              onChange={(e) => setFormData({...formData, title: e.target.value})} 
+              className="w-full p-5 bg-white/60 border border-white/80 rounded-2xl focus:outline-none focus:ring-4 focus:ring-[#D97706]/10 focus:border-[#D97706]/30 text-[#292524] font-bold text-lg transition-all shadow-sm" 
+            />
+          </div>
+          
+          <div className="relative z-10">
+            <label className="block text-[10px] font-black uppercase tracking-widest text-[#78716C] mb-3">
+              Date & Time
+            </label>
+            <input 
+              type="datetime-local" 
+              required 
+              value={formData.event_time} 
+              onChange={(e) => setFormData({...formData, event_time: e.target.value})} 
+              className="w-full p-5 bg-white/60 border border-white/80 rounded-2xl focus:outline-none focus:ring-4 focus:ring-[#D97706]/10 focus:border-[#D97706]/30 text-[#292524] font-bold text-lg transition-all shadow-sm" 
+            />
+          </div>
+          
+          <div className="relative z-10">
+            <label className="block text-[10px] font-black uppercase tracking-widest text-[#78716C] mb-3">
+              Capacity
+            </label>
+            <input 
+              type="number" 
+              required 
+              value={formData.capacity} 
+              onChange={(e) => setFormData({...formData, capacity: parseInt(e.target.value)})} 
+              className="w-full p-5 bg-white/60 border border-white/80 rounded-2xl focus:outline-none focus:ring-4 focus:ring-[#D97706]/10 focus:border-[#D97706]/30 text-[#292524] font-bold text-lg transition-all shadow-sm" 
+            />
+          </div>
+          
+          <div className="relative z-10">
+            <label className="block text-[10px] font-black uppercase tracking-widest text-[#78716C] mb-3">
+              The Vibe (Description)
+            </label>
+            <textarea 
+              rows="5" 
+              required 
+              value={formData.description} 
+              onChange={(e) => setFormData({...formData, description: e.target.value})} 
+              className="w-full p-5 bg-white/60 border border-white/80 rounded-2xl focus:outline-none focus:ring-4 focus:ring-[#D97706]/10 focus:border-[#D97706]/30 text-[#292524] font-medium leading-relaxed transition-all shadow-sm resize-none"
+            ></textarea>
+          </div>
+          
+          <div className="pt-4 relative z-10">
+            <Button 
+              type="submit" 
+              variant="rectangular" 
+              color="gold" 
+              disabled={saving} 
+              className="w-full py-5 text-lg shadow-amber-900/20"
+            >
+              {saving ? <Loader2 className="animate-spin mx-auto" size={24} /> : "Save Changes"}
+            </Button>
+          </div>
+          
+        </form>
+      </div>
     </div>
   );
 }
