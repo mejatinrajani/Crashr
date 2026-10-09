@@ -1,4 +1,4 @@
-
+import { Link } from "react-router-dom";
 import {
   ArrowUpRight,
   Instagram,
@@ -95,25 +95,25 @@ export default function Footer() {
 
             <nav aria-label="Support links" className="flex flex-col items-start gap-4">
               <a
-                href="#"
+                href="/help-center"
                 className="text-sm font-semibold text-stone-700 transition-colors duration-200 hover:text-orange-700"
               >
                 Help Center
               </a>
               <a
-                href="mailto:support@crashr.app"
+                href="/contact"
                 className="text-sm font-semibold text-stone-700 transition-colors duration-200 hover:text-orange-700"
               >
                 Contact Us
               </a>
               <a
-                href="#"
+                href="/privacy-policy"
                 className="text-sm font-semibold text-stone-700 transition-colors duration-200 hover:text-orange-700"
               >
                 Privacy Policy
               </a>
               <a
-                href="#"
+                href="/terms-of-service"
                 className="text-sm font-semibold text-stone-700 transition-colors duration-200 hover:text-orange-700"
               >
                 Terms of Service

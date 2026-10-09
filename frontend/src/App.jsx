@@ -16,6 +16,10 @@ import MyTickets from './pages/MyTickets';
 import HostDashboard from './pages/HostDashboard';
 import EditParty from './pages/EditParty';
 import Map from './components/Map'
+import HelpCenter from "./pages/HelpCenter";
+import ContactUs from "./pages/ContactUs";
+import Privacypolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
 
 
 function App() {
@@ -40,6 +44,10 @@ function App() {
               <Route path="/edit-party/:id" element={<EditParty/>} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/dashboard" element={<HostDashboard />} />
+              <Route path="/help-center" element={<HelpCenter />} />
+              <Route path="/contact" element={<ContactUs />} />
+              <Route path="/privacy-policy" element={<Privacypolicy />} />
+              <Route path="/terms-of-service" element={<TermsOfService />} />
             </Routes>
           </main>
 
