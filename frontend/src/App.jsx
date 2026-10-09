@@ -45,7 +45,7 @@ function App() {
 
           <Footer />
         </div>
-        <div style={{ width: '100vw', height: '100vh' }}>
+        <div style={{ width: '100vw', height: '50vh' }}>
       <Map />
     </div>
       </Router>

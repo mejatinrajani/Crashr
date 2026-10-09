@@ -357,27 +357,35 @@ function ExactLocationPicker({ value, onChangeText, onCoordinatesSelect, placeho
 // ==========================================
 // 3. MAIN CREATE PARTY PAGE
 // ==========================================
+
 export default function CreateParty() {
-  useEffect(() => {
-  if (!imageFile) {
-    setImagePreview('');
-    return;
-  }
-
-  const previewUrl = URL.createObjectURL(imageFile);
-  setImagePreview(previewUrl);
-
-  return () => URL.revokeObjectURL(previewUrl);
-}, [imageFile]);
+  const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
+
   const navigate = useNavigate();
   const { user } = useAuth();
+  
+
+  useEffect(() => {
+    if (!imageFile) {
+      setImagePreview('');
+      return;
+    }
+
+    const previewUrl = URL.createObjectURL(imageFile);
+    setImagePreview(previewUrl);
+
+    return () => URL.revokeObjectURL(previewUrl);
+  }, [imageFile]);
+
+
+  
   
   const [formData, setFormData] = useState({
     title: '', event_time: '', price: '', location: '', exact_address: '', lat: null, lng: null, description: '', capacity: 26, requires_approval: false,
   });
   
-  const [imageFile, setImageFile] = useState(null);
+  
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
