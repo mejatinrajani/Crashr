@@ -15,9 +15,12 @@ import Profile from './pages/Profile';
 import MyTickets from './pages/MyTickets';
 import HostDashboard from './pages/HostDashboard';
 import EditParty from './pages/EditParty';
+import Map from './components/Map'
+
 
 function App() {
   return (
+    
     <AuthProvider>
       <Router>
         <Toaster position="bottom-right" richColors />
@@ -42,6 +45,9 @@ function App() {
 
           <Footer />
         </div>
+        <div style={{ width: '100vw', height: '100vh' }}>
+      <Map />
+    </div>
       </Router>
     </AuthProvider>
   );

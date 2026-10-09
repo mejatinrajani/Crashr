@@ -358,6 +358,18 @@ function ExactLocationPicker({ value, onChangeText, onCoordinatesSelect, placeho
 // 3. MAIN CREATE PARTY PAGE
 // ==========================================
 export default function CreateParty() {
+  useEffect(() => {
+  if (!imageFile) {
+    setImagePreview('');
+    return;
+  }
+
+  const previewUrl = URL.createObjectURL(imageFile);
+  setImagePreview(previewUrl);
+
+  return () => URL.revokeObjectURL(previewUrl);
+}, [imageFile]);
+  const [imagePreview, setImagePreview] = useState('');
   const navigate = useNavigate();
   const { user } = useAuth();
   

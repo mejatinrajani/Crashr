@@ -23,61 +23,45 @@ export default function PartyDetails() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);  
 
   useEffect(() => {
-    const fetchPartyDetails = async () => {
-      try {
-        const response = await api.get(`/parties/${id}`);
-        setParty(response.data);
-      } catch (err) {
-        console.error("Error fetching party details:", err);
-        setError("We couldn't find this party. It may have been canceled or removed.");
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchPartyDetails = async () => {
+    try {
+      const response = await api.get(`/parties/${id}`);
 
-    fetchPartyDetails();
+      console.log("PARTY DETAILS:", response.data);
 
-    // 1. Supabase Realtime Subscription
-    const channel = supabase.channel('custom-ticket-channel')
-      .on(
-        'postgres_changes', 
-        { 
-          event: 'UPDATE', 
-          schema: 'public', 
-          table: 'tickets',
-          filter: `party_id=eq.${id}` 
-        }, 
-        (payload) => {
-          // If the host just approved THIS user's ticket on the dashboard
-          if (payload.new.guest_id === user?.id) {
-            setTicketStatus(payload.new.status);
-            
-            if (payload.new.status === 'confirmed') {
-              toast.success("You're in! Your ticket was just approved.");
-            } else if (payload.new.status === 'denied') {
-              toast.error("Your ticket request was declined.");
-            }
-          }
-        }
-      )
-      .subscribe();
+      setParty(response.data);
+    } catch (err) {
+      console.error("Error fetching party details:", err);
+      setError(
+        "We couldn't find this party. It may have been canceled or removed."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [id, user]);
+  fetchPartyDetails();
 
-  const isHost = user?.id === party?.host_id;
-  const handlePayment = async () => {
+  // Keep your existing Supabase subscription code here.
+
+  return () => {
+    supabase.removeChannel(channel);
+  };
+}, [id, user]);
+
+const isHost = user?.id === party?.host_id;
+
+const handlePayment = async () => {
   setIsPurchasing(true);
+
   try {
-    // We need the ticket ID to pay. 
-    // You should fetch the user's specific ticket ID in your fetchPartyDetails useEffect,
-    // or fetch it here. For simplicity, assuming you have it in state as `userTicketId`:
-    const { data: ticketData } = await api.get(`/tickets/my-ticket/${id}`); 
+    const { data: ticketData } = await api.get(
+      `/tickets/my-ticket/${id}`
+    );
+
     await api.post(`/tickets/${ticketData.id}/pay`);
-    
-    setTicketStatus('confirmed');
+
+    setTicketStatus("confirmed");
     toast.success("Payment successful! You are on the list.");
   } catch (err) {
     console.error(err);
@@ -136,7 +120,7 @@ export default function PartyDetails() {
   }
 
   return (
-    <div className="relative min-h-screen bg-black overflow-hidden animate-in fade-in duration-1000">
+    <div className="relative min-h-screen bg-black overflow-hidden animate-in fade-in duration-700 selection:bg-amber-500/30">
       
       {/* 1. FULL SCREEN IMMERSIVE BACKGROUND */}
       <div className="fixed inset-0 z-0">
@@ -144,12 +128,13 @@ export default function PartyDetails() {
           <img 
             src={party.cover_image_url} 
             alt={party.title} 
-            className="w-full h-full object-cover opacity-80 scale-105 animate-out zoom-out duration-[10000ms]"
+            className="h-full w-full object-cover opacity-80 scale-105 transition-transform duration-[12000ms] ease-out"
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-[#292524] to-[#1C1917]"></div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/65 to-black/20" />
+<div className="absolute inset-0 bg-gradient-to-r from-black/35 via-transparent to-transparent" />
       </div>
 
       {/* 2. TOP FLOATING NAVIGATION */}
@@ -162,19 +147,22 @@ export default function PartyDetails() {
       {/* 3. THE FLOATING BOTTOM DOCK */}
       <div className="relative z-10 min-h-screen flex flex-col justify-end p-4 md:p-8 pointer-events-none">
         
-        <div className="w-full max-w-5xl mx-auto bg-white/10 backdrop-blur-2xl p-6 md:p-10 rounded-[2.5rem] border border-white/20 shadow-2xl flex flex-col md:flex-row gap-8 items-end pointer-events-auto">
+        
+<div className="relative w-full max-w-6xl mx-auto overflow-hidden rounded-[2rem] border border-white/20 bg-black/35 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.35)] backdrop-blur-2xl transition-all duration-300 md:rounded-[2.5rem] md:p-10 lg:flex lg:items-end lg:gap-10 pointer-events-auto">
+
           
           {/* Info Section */}
           <div className="flex-1 w-full text-white">
-            <div className="flex items-center gap-3 mb-4">
+            <div className="mb-5 flex flex-wrap items-center gap-2.5">
               {party.requires_approval && (
                 <span className="bg-white/20 text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
                   <Lock size={12} /> Approval Required
                 </span>
               )}
-              <span className="bg-[#D97706] text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
-                {party.capacity} Guest Limit
-              </span>
+              <span className="inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-500/20 px-3.5 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-amber-100">
+  <Users size={12} />
+  {party.capacity} Guest Limit
+</span>
             </div>
             
             <h1 className="text-4xl md:text-6xl font-black tracking-tighter mb-2 leading-none">

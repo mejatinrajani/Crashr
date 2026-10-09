@@ -1,0 +1,397 @@
+
+/* =========================================
+   CRASHR — HOMEPAGE VISUAL ENHANCEMENTS
+   Preserves the existing cream background
+========================================= */
+
+/* More expressive hero typography */
+.home-title {
+  text-wrap: balance;
+  animation: crashr-hero-enter 650ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.home-title-accent {
+  display: inline-block;
+  padding-bottom: 0.04em;
+  transition: filter 250ms ease;
+}
+
+.home-title-accent:hover {
+  filter: drop-shadow(0 5px 14px rgba(217, 119, 6, 0.17));
+}
+
+/* Eyebrow gets a subtle live pulse */
+.home-eyebrow-dot {
+  animation: crashr-dot-pulse 2.2s ease-in-out infinite;
+}
+
+/* Marquee becomes a little more interactive */
+.home-marquee {
+  overflow: hidden;
+  border-radius: 14px;
+}
+
+.home-marquee:hover .home-marquee-track {
+  animation-play-state: paused;
+}
+
+/* A more polished search panel */
+.home-search-panel {
+  position: relative;
+  overflow: hidden;
+  transition:
+    box-shadow 250ms ease,
+    border-color 250ms ease,
+    transform 250ms ease;
+}
+
+.home-search-panel:focus-within {
+  border-color: rgba(217, 119, 6, 0.25);
+  box-shadow: 0 18px 48px rgba(120, 53, 15, 0.075);
+}
+
+.home-search-submit:active {
+  transform: scale(0.94);
+}
+
+/* Filter chips feel more responsive */
+.home-filter {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.home-filter:active {
+  transform: scale(0.96);
+}
+
+.home-filter-active {
+  box-shadow: 0 4px 12px rgba(41, 37, 36, 0.12);
+}
+
+/* Discovery sections enter gently */
+.home-discovery-footer {
+  transition: border-color 200ms ease;
+}
+
+/* Loading, empty and error states */
+.home-state-panel {
+  transition:
+    border-color 200ms ease,
+    box-shadow 200ms ease;
+}
+
+.home-state-icon {
+  transition: transform 250ms ease;
+}
+
+.home-state-panel:hover .home-state-icon {
+  transform: translateY(-3px) rotate(-3deg);
+}
+
+/* Entrance animation */
+@keyframes crashr-hero-enter {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Subtle pulse */
+@keyframes crashr-dot-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 4px rgba(217, 119, 6, 0.12);
+  }
+
+  50% {
+    box-shadow: 0 0 0 7px rgba(217, 119, 6, 0.045);
+  }
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .home-title,
+  .home-eyebrow-dot {
+    animation: none;
+  }
+
+  .home-title-accent,
+  .home-search-panel,
+  .home-filter,
+  .home-state-panel,
+  .home-state-icon {
+    transition: none;
+  }
+}
+
+
+/* Crashr homepage — warm cream, espresso and amber */
+
+.crashr-home {
+  color: #292524;
+}
+
+.home-marquee {
+  background: rgba(255, 255, 255, 0.42);
+  border-color: rgba(41, 37, 36, 0.07);
+}
+
+.home-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: crashr-marquee 32s linear infinite;
+}
+
+.home-marquee-copy {
+  flex-shrink: 0;
+  color: rgba(180, 83, 9, 0.48);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.19em;
+  text-transform: uppercase;
+}
+
+.home-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #a16207;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+}
+
+.home-eyebrow-dot {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #d97706;
+  box-shadow: 0 0 0 4px rgba(217, 119, 6, 0.12);
+}
+
+.home-title {
+  font-size: clamp(3.5rem, 8vw, 7rem);
+  font-weight: 950;
+  line-height: 0.91;
+  letter-spacing: -0.075em;
+  color: #292524;
+  overflow-wrap: anywhere;
+}
+
+.home-title-accent {
+  color: #c66a0a;
+  background: linear-gradient(100deg, #d97706, #92400e);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.home-search-panel {
+  padding: 22px;
+  border: 1px solid rgba(41, 37, 36, 0.07);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.68);
+  box-shadow: 0 14px 45px rgba(120, 53, 15, 0.045);
+}
+
+.home-search-form {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+  padding: 7px 7px 7px 14px;
+  border: 1px solid rgba(41, 37, 36, 0.1);
+  border-radius: 15px;
+  background: #fff;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.home-search-form:focus-within {
+  border-color: rgba(217, 119, 6, 0.65);
+  box-shadow: 0 0 0 4px rgba(217, 119, 6, 0.09);
+}
+
+.home-search-input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #292524;
+  font-size: 14px;
+}
+
+.home-search-input::placeholder {
+  color: #a8a29e;
+}
+
+.home-search-submit {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  place-items: center;
+  border: 0;
+  border-radius: 11px;
+  background: #292524;
+  color: #fff;
+  cursor: pointer;
+  transition: background 160ms ease, transform 160ms ease;
+}
+
+.home-search-submit:hover {
+  background: #b45309;
+  transform: translateY(-1px);
+}
+
+.home-clear-search {
+  flex-shrink: 0;
+  color: #78716c;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.home-clear-search:hover {
+  color: #b45309;
+}
+
+.home-filter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 40px;
+  padding: 9px 15px;
+  border: 1px solid rgba(41, 37, 36, 0.1);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.52);
+  color: #57534e;
+  font-size: 13px;
+  font-weight: 750;
+  transition:
+    background 160ms ease,
+    color 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+
+.home-filter:hover {
+  border-color: rgba(217, 119, 6, 0.4);
+  transform: translateY(-1px);
+}
+
+.home-filter-active {
+  border-color: #292524;
+  background: #292524;
+  color: #fff;
+}
+
+.home-filter-active:hover {
+  border-color: #292524;
+  background: #44403c;
+  color: #fff;
+}
+
+.home-reset-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #a16207;
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.home-reset-button:hover {
+  color: #78350f;
+}
+
+.home-state-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 64px 24px;
+  border: 1px solid rgba(41, 37, 36, 0.07);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.48);
+  text-align: center;
+}
+
+.home-state-icon {
+  display: grid;
+  width: 58px;
+  height: 58px;
+  margin-bottom: 22px;
+  place-items: center;
+  border: 1px solid rgba(217, 119, 6, 0.14);
+  border-radius: 19px;
+  background: rgba(217, 119, 6, 0.08);
+  color: #b45309;
+}
+
+.home-discovery-footer {
+  padding-top: 25px;
+  border-top: 1px solid rgba(41, 37, 36, 0.07);
+}
+
+@keyframes crashr-marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (max-width: 640px) {
+  .home-search-panel {
+    padding: 16px;
+    border-radius: 20px;
+  }
+
+  .home-title {
+    font-size: clamp(3.4rem, 16vw, 5rem);
+  }
+
+  .home-filter {
+    min-height: 38px;
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .home-state-panel {
+    padding: 48px 20px;
+    border-radius: 22px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-marquee-track {
+    animation: none;
+  }
+
+  .home-filter,
+  .home-search-submit {
+    transition: none;
+  }
+}
+
+
+
+/* Prevent accidental horizontal overflow */
+html,
+body,
+#root {
+  max-width: 100%;
+  min-width: 0;
+}
+
+body {
+  overflow-x: clip;
+}

@@ -1,153 +1,584 @@
-import { useState, useEffect } from 'react';
+
+import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import PartyCard from '../components/PartyCard';
 import Button from '../components/Button';
 import api from '../services/api';
-import { formatDateTime, formatCurrency } from '../utils/formatters';
-import { Loader2, MapPinOff, Compass } from 'lucide-react';
-import { motion } from 'framer-motion';
+import {
+  formatDateTime,
+  formatCurrency,
+} from '../utils/formatters';
+import {
+  Loader2,
+  MapPin,
+  MapPinOff,
+  Search,
+  Compass,
+  CalendarDays,
+  SlidersHorizontal,
+  PartyPopper,
+  RotateCcw,
+} from 'lucide-react';
+import { motion, useReducedMotion } from 'framer-motion';
+
+const FILTERS = [
+  { label: 'All parties', value: 'all' },
+  { label: 'Tonight', value: 'tonight' },
+  { label: 'This weekend', value: 'weekend' },
+  { label: 'Under ₹500', value: 'budget' },
+];
+
+function getPartyLocation(party) {
+  const location = party?.location;
+
+  if (typeof location === 'string') return location;
+  if (location && typeof location === 'object') {
+    return [
+      location.name,
+      location.city,
+      location.address,
+    ].filter(Boolean).join(', ');
+  }
+
+  return '';
+}
+
+function getPartyDate(party) {
+  const value = party?.event_time || party?.starts_at;
+
+  if (!value) return null;
+
+  const date = new Date(value);
+
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function matchesDateFilter(party, filter) {
+  if (filter === 'all' || filter === 'budget') return true;
+
+  const date = getPartyDate(party);
+
+  if (!date) return false;
+
+  const now = new Date();
+  const todayStart = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate()
+  );
+
+  if (filter === 'tonight') {
+    const tomorrowStart = new Date(todayStart);
+    tomorrowStart.setDate(tomorrowStart.getDate() + 1);
+
+    return date >= now && date < tomorrowStart;
+  }
+
+  if (filter === 'weekend') {
+    const saturday = new Date(todayStart);
+    const daysUntilSaturday = (6 - now.getDay() + 7) % 7;
+    saturday.setDate(
+      saturday.getDate() + daysUntilSaturday
+    );
+
+    // If it is Sunday, include today as part of this weekend.
+    const weekendStart =
+      now.getDay() === 0 ? todayStart : saturday;
+
+    const monday = new Date(weekendStart);
+    monday.setDate(monday.getDate() + 2);
+
+    return date >= now && date < monday;
+  }
+
+  return true;
+}
+
+function getPartyPrice(party) {
+  const price = Number(party?.price);
+
+  return Number.isFinite(price) ? price : null;
+}
 
 export default function Home() {
   const [parties, setParties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
-  // Connect to the URL Search Params
+  const [activeFilter, setActiveFilter] = useState('all');
+  const [searchInput, setSearchInput] = useState('');
+
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const shouldReduceMotion = useReducedMotion();
+
   const searchCity = searchParams.get('city') || '';
 
   useEffect(() => {
-    const fetchParties = async () => {
-      try {
-        const response = await api.get('/parties');
-        setParties(response.data);
-      } catch (err) {
-        console.error("Error fetching parties:", err);
-        setError("Failed to load parties. Please try again later.");
-      } finally {
-        setLoading(false);
-      }
-    };
+    setSearchInput(searchCity);
+  }, [searchCity]);
 
+  const fetchParties = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await api.get('/parties');
+
+      const data = response.data;
+      const partyList = Array.isArray(data)
+        ? data
+        : Array.isArray(data?.parties)
+          ? data.parties
+          : [];
+
+      setParties(partyList);
+    } catch (err) {
+      console.error('Error fetching parties:', err);
+      setError(
+        'We couldn’t load the parties right now. Please try again.'
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchParties();
   }, []);
 
-  // --- FILTERING LOGIC ---
-  const filteredParties = searchCity
-    ? parties.filter(p => p.location.toLowerCase().includes(searchCity.toLowerCase()))
-    : parties;
+  const filteredParties = useMemo(() => {
+    return parties.filter((party) => {
+      const location = getPartyLocation(party);
 
-  // --- FALLBACK LOGIC ---
-  const noMatchesFound = searchCity && filteredParties.length === 0;
-  // If no matches, grab the first 3 parties from the general list
-  const fallbackParties = noMatchesFound ? parties.slice(0, 3) : [];
-  const hasMoreFallbacks = noMatchesFound && parties.length > 3;
+      const matchesCity =
+        !searchCity ||
+        location.toLowerCase().includes(
+          searchCity.trim().toLowerCase()
+        );
+
+      const matchesFilter = matchesDateFilter(
+        party,
+        activeFilter
+      );
+
+      const price = getPartyPrice(party);
+
+      const matchesBudget =
+        activeFilter !== 'budget' ||
+        (price !== null && price < 500);
+
+      return (
+        matchesCity &&
+        matchesFilter &&
+        matchesBudget
+      );
+    });
+  }, [parties, searchCity, activeFilter]);
+
+  const submitSearch = (event) => {
+    event.preventDefault();
+
+    const city = searchInput.trim();
+
+    if (city) {
+      navigate(`/?city=${encodeURIComponent(city)}`);
+    } else {
+      navigate('/');
+    }
+  };
 
   const clearSearch = () => {
+    setSearchInput('');
+    setActiveFilter('all');
     navigate('/');
   };
 
-  // Framer Motion Variants
   const container = {
     hidden: { opacity: 0 },
-    show: { opacity: 1, transition: { staggerChildren: 0.1 } }
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: shouldReduceMotion ? 0 : 0.08,
+      },
+    },
   };
+
   const item = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+    hidden: {
+      opacity: 0,
+      y: shouldReduceMotion ? 0 : 16,
+    },
+    show: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: shouldReduceMotion ? 0 : 0.3,
+      },
+    },
   };
 
   return (
-    <div className="min-h-screen pt-8 pb-24">
-      
-      {/* Dynamic Marquee Band */}
-      <div className="w-full overflow-hidden whitespace-nowrap py-3 mb-12 border-y border-[#292524]/5 bg-white/40 backdrop-blur-md">
-        <div className="inline-block font-black tracking-[0.2em] text-[#D97706]/40 uppercase text-xs sm:text-sm" style={{ animation: 'marquee 25s linear infinite' }}>
-          LIVE PARTIES • EXCLUSIVE GUEST LISTS • FIND YOUR VIBE • NO BORING NIGHTS • LIVE PARTIES • EXCLUSIVE GUEST LISTS • FIND YOUR VIBE • NO BORING NIGHTS •
+    <main className="crashr-home min-h-screen pb-20 pt-6 sm:pt-8">
+
+      {/* Brand marquee */}
+      <div className="home-marquee mb-12 overflow-hidden border-y py-3 sm:mb-16">
+        <div className="home-marquee-track whitespace-nowrap">
+          {Array.from({ length: 2 }).map((_, index) => (
+            <span
+              key={index}
+              className="home-marquee-copy"
+              aria-hidden={index === 1 ? 'true' : undefined}
+            >
+              FIND YOUR PEOPLE&nbsp; • &nbsp;
+              HOUSE PARTIES&nbsp; • &nbsp;
+              GOOD MUSIC&nbsp; • &nbsp;
+              NEW CONNECTIONS&nbsp; • &nbsp;
+              NO BORING NIGHTS&nbsp; • &nbsp;
+            </span>
+          ))}
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 md:px-8">
-        
-        {/* Cinematic Hero Section */}
-        <header className="mb-12 relative">
-          <h1 className="text-6xl md:text-8xl font-black text-[#292524] mb-4 tracking-tighter leading-[0.9]">
-            {searchCity ? (
-              <>Parties in <br className="hidden md:block"/><span className="text-transparent bg-clip-text bg-gradient-to-r from-[#D97706] to-[#92400E] capitalize">{searchCity}.</span></>
-            ) : (
-              <>Find your <br className="hidden md:block"/><span className="text-transparent bg-clip-text bg-gradient-to-r from-[#D97706] to-[#92400E]">vibe.</span></>
-            )}
-          </h1>
-        </header>
+      <div className="mx-auto max-w-7xl px-5 sm:px-8">
 
-        {loading ? (
-          <div className="flex flex-col justify-center items-center py-32 gap-6">
-            <Loader2 className="animate-spin text-[#D97706]" size={56} strokeWidth={1.5} />
-            <p className="text-[#D97706] font-bold tracking-[0.2em] uppercase text-sm animate-pulse">Curating the night...</p>
+        {/* Hero */}
+        <section className="home-hero mb-12 sm:mb-16">
+          <div className="home-eyebrow mb-5">
+            <span className="home-eyebrow-dot" />
+            YOUR NEXT NIGHT STARTS HERE
           </div>
-        ) : error ? (
-          <div className="bg-[#292524] text-[#FDFBF7] p-8 rounded-3xl text-center font-bold tracking-tight shadow-xl">{error}</div>
-        ) : parties.length === 0 ? (
-          <div className="text-center py-32 border border-[#292524]/5 rounded-[2.5rem] bg-white/40 backdrop-blur-md shadow-sm">
-            <p className="text-[#78716C] text-xl font-bold tracking-tight mb-4">The city is quiet tonight.</p>
-          </div>
-        ) : noMatchesFound ? (
-          /* NO MATCHES FOUND - THE FALLBACK UI */
-          <div className="animate-in fade-in duration-500">
-            <div className="bg-white/40 backdrop-blur-xl border border-white/60 p-8 md:p-12 rounded-[2.5rem] shadow-sm mb-12 text-center">
-              <MapPinOff size={48} className="mx-auto text-[#D97706]/40 mb-6" />
-              <h3 className="text-3xl font-black text-[#292524] tracking-tight mb-3">
-                No parties found in <span className="capitalize text-[#D97706]">{searchCity}</span>
-              </h3>
-              <p className="text-[#78716C] font-medium text-lg mb-8 max-w-xl mx-auto">
-                Be the first to host an event in your town, or check out what's happening in other areas below.
+
+          <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
+            <div>
+              <h1 className="home-title">
+                {searchCity ? (
+                  <>
+                    Parties in
+                    <br />
+                    <span className="home-title-accent">
+                      {searchCity}.
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    Find your
+                    <br />
+                    <span className="home-title-accent">
+                      vibe.
+                    </span>
+                  </>
+                )}
+              </h1>
+
+              <p className="mt-6 max-w-xl text-base leading-7 text-stone-600 sm:text-lg">
+                Discover house parties around you, meet
+                new people, and find somewhere worth
+                being tonight.
               </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Button onClick={clearSearch} variant="rectangular" color="espresso" className="w-full sm:w-auto px-8">
-                  View All Cities
-                </Button>
-                <Button onClick={() => alert("Geolocation feature coming soon!")} variant="rectangular" color="white" className="w-full sm:w-auto px-8 gap-2 border border-[#292524]/10 bg-white">
-                  <Compass size={18} className="text-[#D97706]" /> Search Nearby Areas
-                </Button>
+            </div>
+
+            <div className="home-search-panel">
+              <p className="mb-3 text-sm font-bold text-stone-800">
+                Where are we going?
+              </p>
+
+              <form
+                onSubmit={submitSearch}
+                className="home-search-form"
+              >
+                <MapPin
+                  size={19}
+                  className="shrink-0 text-amber-700"
+                />
+
+                <input
+                  value={searchInput}
+                  onChange={(event) =>
+                    setSearchInput(event.target.value)
+                  }
+                  placeholder="Search your city or town..."
+                  aria-label="Search parties by city or town"
+                  className="home-search-input"
+                />
+
+                {searchInput && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchInput('');
+                      navigate('/');
+                    }}
+                    className="home-clear-search"
+                    aria-label="Clear city search"
+                  >
+                    Clear
+                  </button>
+                )}
+
+                <button
+                  type="submit"
+                  className="home-search-submit"
+                  aria-label="Search parties"
+                >
+                  <Search size={19} />
+                </button>
+              </form>
+
+              <p className="mt-3 text-xs leading-5 text-stone-500">
+                Find gatherings in the places you love.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Discovery controls */}
+        <section className="mb-10" aria-label="Party filters">
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <div className="flex items-center gap-2">
+                <Compass
+                  size={19}
+                  className="text-amber-700"
+                />
+                <h2 className="text-xl font-black tracking-tight text-stone-900 sm:text-2xl">
+                  Explore the scene
+                </h2>
+              </div>
+
+              <p className="mt-1 text-sm text-stone-500">
+                Find the right place for your next night out.
+              </p>
+            </div>
+
+            {searchCity && (
+              <button
+                type="button"
+                onClick={clearSearch}
+                className="home-reset-button"
+              >
+                <RotateCcw size={14} />
+                Clear search
+              </button>
+            )}
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            {FILTERS.map((filter) => (
+              <button
+                key={filter.value}
+                type="button"
+                onClick={() =>
+                  setActiveFilter(filter.value)
+                }
+                aria-pressed={
+                  activeFilter === filter.value
+                }
+                className={`home-filter ${
+                  activeFilter === filter.value
+                    ? 'home-filter-active'
+                    : ''
+                }`}
+              >
+                {filter.value === 'tonight' && (
+                  <CalendarDays size={15} />
+                )}
+
+                {filter.value === 'weekend' && (
+                  <PartyPopper size={15} />
+                )}
+
+                {filter.value === 'budget' && (
+                  <SlidersHorizontal size={15} />
+                )}
+
+                {filter.label}
+              </button>
+            ))}
+          </div>
+        </section>
+
+        {/* Loading */}
+        {loading ? (
+          <div
+            className="flex flex-col items-center justify-center gap-5 py-28"
+            role="status"
+          >
+            <Loader2
+              className="animate-spin text-amber-700"
+              size={42}
+              strokeWidth={1.5}
+            />
+
+            <p className="text-sm font-bold tracking-widest text-amber-800">
+              FINDING YOUR NEXT VIBE...
+            </p>
+
+            <span className="sr-only">
+              Loading parties
+            </span>
+          </div>
+
+        ) : error ? (
+          /* Error state */
+          <div className="home-state-panel">
+            <div className="home-state-icon">
+              <MapPinOff size={26} />
+            </div>
+
+            <h2 className="text-2xl font-black text-stone-900">
+              We lost the party trail.
+            </h2>
+
+            <p className="mt-3 max-w-md text-sm leading-6 text-stone-600">
+              {error}
+            </p>
+
+            <div className="mt-6">
+              <Button
+                onClick={fetchParties}
+                variant="rectangular"
+                color="espresso"
+              >
+                Try again
+              </Button>
+            </div>
+          </div>
+
+        ) : parties.length === 0 ? (
+          /* No published parties */
+          <div className="home-state-panel">
+            <div className="home-state-icon">
+              <PartyPopper size={26} />
+            </div>
+
+            <h2 className="text-2xl font-black text-stone-900">
+              The scene is waiting for you.
+            </h2>
+
+            <p className="mt-3 max-w-md text-sm leading-6 text-stone-600">
+              There are no parties to display yet.
+              Be the first to create a gathering and
+              bring your people together.
+            </p>
+
+            <div className="mt-6">
+              <Button
+                onClick={() => navigate('/create-party')}
+                variant="rectangular"
+                color="espresso"
+              >
+                Host a party
+              </Button>
+            </div>
+          </div>
+
+        ) : filteredParties.length === 0 ? (
+          /* Filtered results empty */
+          <div className="home-state-panel">
+            <div className="home-state-icon">
+              <MapPinOff size={26} />
+            </div>
+
+            <h2 className="text-2xl font-black text-stone-900">
+              No parties found here. Yet.
+            </h2>
+
+            <p className="mt-3 max-w-lg text-sm leading-6 text-stone-600">
+              {searchCity
+                ? `We couldn't find parties in ${searchCity} with these filters. Try another area or explore all available parties.`
+                : 'Nothing matches this filter right now. Try another date or explore all parties.'}
+            </p>
+
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              <Button
+                onClick={() => {
+                  setActiveFilter('all');
+                  if (searchCity) clearSearch();
+                }}
+                variant="rectangular"
+                color="espresso"
+              >
+                View all parties
+              </Button>
+
+              <Button
+                onClick={() => navigate('/create-party')}
+                variant="rectangular"
+                color="white"
+              >
+                Host a party
+              </Button>
+            </div>
+          </div>
+
+        ) : (
+          /* Party listings */
+          <section aria-label="Available parties">
+            <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <h2 className="text-2xl font-black tracking-tight text-stone-900 sm:text-3xl">
+                  {activeFilter === 'tonight'
+                    ? "Tonight's plans"
+                    : activeFilter === 'weekend'
+                      ? 'This weekend'
+                      : activeFilter === 'budget'
+                        ? 'Easy on the wallet'
+                        : searchCity
+                          ? 'Around your area'
+                          : 'Parties worth the night'}
+                </h2>
+
+                <p className="mt-2 text-sm text-stone-500">
+                  {filteredParties.length}{' '}
+                  {filteredParties.length === 1
+                    ? 'party'
+                    : 'parties'}{' '}
+                  to explore
+                  {searchCity ? ` in ${searchCity}` : ''}
+                </p>
               </div>
             </div>
 
-            <div className="mb-8">
-              <h4 className="text-sm font-black uppercase tracking-[0.2em] text-[#78716C]">Trending in other towns</h4>
-            </div>
-
-            <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr">
-              {fallbackParties.map((party) => (
-                <motion.div key={party.id} variants={item} className="col-span-1 h-full">
-                  <PartyCard party={{ ...party, time: formatDateTime(party.event_time), price: formatCurrency(party.price) }} />
+            <motion.div
+              variants={container}
+              initial="hidden"
+              animate="show"
+              className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"
+            >
+              {filteredParties.map((party) => (
+                <motion.div
+                  key={party.id}
+                  variants={item}
+                  className="min-w-0"
+                >
+                  <PartyCard
+                    party={{
+                      ...party,
+                      location: getPartyLocation(party),
+                      time: formatDateTime(
+                        party.event_time || party.starts_at
+                      ),
+                      price: formatCurrency(party.price),
+                    }}
+                  />
                 </motion.div>
               ))}
             </motion.div>
+          </section>
+        )}
 
-            {hasMoreFallbacks && (
-              <div className="mt-12 text-center">
-                <Button onClick={clearSearch} variant="rectangular" color="gold" className="px-12 py-4 shadow-xl shadow-amber-900/20">
-                  View More Parties
-                </Button>
-              </div>
-            )}
+        {/* Discovery footer */}
+        {!loading && !error && parties.length > 0 && (
+          <div className="home-discovery-footer mt-14">
+            <div className="flex items-center justify-center gap-2 text-amber-800">
+              <PartyPopper size={18} />
+              <span className="text-xs font-black tracking-widest">
+                GOOD PEOPLE. GOOD PARTIES. GOOD STORIES.
+              </span>
+            </div>
           </div>
-        ) : (
-          /* NORMAL BENTO GRID - MATCHES FOUND */
-          <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr">
-            {filteredParties.map((party, index) => {
-              const isHero = index === 0;
-              const isWide = index === 3 || index === 6;
-              return (
-                <motion.div key={party.id} variants={item} className={`relative ${isHero ? 'md:col-span-2 md:row-span-2' : isWide ? 'md:col-span-2' : 'col-span-1'} h-full`}>
-                  <PartyCard party={{ ...party, time: formatDateTime(party.event_time), price: formatCurrency(party.price) }} />
-                </motion.div>
-              );
-            })}
-          </motion.div>
         )}
       </div>
-    </div>
+    </main>
   );
 }

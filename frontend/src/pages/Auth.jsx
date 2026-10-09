@@ -145,14 +145,14 @@ export default function Auth() {
             {/* OTP Field */}
             {(view === 'verify' || view === 'reset_password') && (
               <div>
-                <label className="block text-[10px] font-black uppercase tracking-widest text-[#78716C] mb-3 text-center">6-Digit OTP</label>
+                <label className="block text-[10px] font-black uppercase tracking-widest text-[#78716C] mb-3 text-center">8-Digit OTP</label>
                 <input 
                   type="text" 
                   required 
                   value={otp} 
                   onChange={(e) => setOtp(e.target.value)} 
-                  placeholder="------" 
-                  maxLength={6}
+                  placeholder="--------" 
+                  maxLength={8}
                   className="w-full p-5 bg-white/60 border border-white/80 rounded-2xl focus:outline-none focus:ring-4 focus:ring-[#D97706]/10 focus:border-[#D97706]/30 text-[#292524] font-black text-3xl tracking-[0.5em] text-center transition-all shadow-sm placeholder:text-[#292524]/20 font-mono" 
                 />
               </div>
