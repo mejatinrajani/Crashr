@@ -8,6 +8,14 @@ from datetime import datetime
 from typing import Optional
 from dotenv import load_dotenv
 
+
+from typing import Literal
+from pydantic import BaseModel
+
+class TicketUpdate(BaseModel):
+    status: Literal["approved", "denied"]
+
+
 load_dotenv()
 
 # 1. Initialize Supabase Client
@@ -188,21 +196,68 @@ async def get_host_dashboard(current_user = Depends(get_current_user)):
         .execute()
     return response.data
 
+
 @app.put("/tickets/{ticket_id}/status")
-async def update_ticket_status(ticket_id: str, update_data: TicketUpdate, current_user = Depends(get_current_user)):
+async def update_ticket_status(
+    ticket_id: str,
+    update_data: TicketUpdate,
+    current_user=Depends(get_current_user)
+):
     """Approve or deny a pending ticket request."""
-    # 1. Verify the current user is actually the host of this party
-    ticket_res = supabase.table("tickets").select("party_id").eq("id", ticket_id).execute()
+
+    # 1. Find the ticket
+    ticket_res = (
+        supabase.table("tickets")
+        .select("id, party_id, status")
+        .eq("id", ticket_id)
+        .execute()
+    )
+
     if not ticket_res.data:
         raise HTTPException(status_code=404, detail="Ticket not found")
-        
-    party_res = supabase.table("parties").select("host_id").eq("id", ticket_res.data[0]["party_id"]).execute()
+
+    ticket = ticket_res.data[0]
+
+    # 2. Verify the host owns the party
+    party_res = (
+        supabase.table("parties")
+        .select("host_id")
+        .eq("id", ticket["party_id"])
+        .execute()
+    )
+
+    if not party_res.data:
+        raise HTTPException(status_code=404, detail="Party not found")
+
     if party_res.data[0]["host_id"] != current_user.id:
-        raise HTTPException(status_code=403, detail="Not authorized to manage this party's tickets")
-        
-    # 2. Update the status
-    response = supabase.table("tickets").update({"status": update_data.status}).eq("id", ticket_id).execute()
+        raise HTTPException(
+            status_code=403,
+            detail="Not authorized to manage this party's tickets"
+        )
+
+    # 3. Only pending requests can be approved or denied
+    if ticket["status"] != "pending":
+        raise HTTPException(
+            status_code=400,
+            detail="Only pending ticket requests can be updated"
+        )
+
+    # 4. Save the host's decision
+    response = (
+        supabase.table("tickets")
+        .update({"status": update_data.status})
+        .eq("id", ticket_id)
+        .execute()
+    )
+
+    if not response.data:
+        raise HTTPException(
+            status_code=500,
+            detail="Could not update ticket status"
+        )
+
     return response.data[0]
+
 
 @app.delete("/parties/{party_id}")
 async def cancel_party(party_id: str, current_user = Depends(get_current_user)):
