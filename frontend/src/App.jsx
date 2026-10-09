@@ -15,7 +15,7 @@ import Profile from './pages/Profile';
 import MyTickets from './pages/MyTickets';
 import HostDashboard from './pages/HostDashboard';
 import EditParty from './pages/EditParty';
-
+import Map from './components/Map'
 
 
 function App() {
