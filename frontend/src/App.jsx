@@ -28,7 +28,7 @@ function App() {
   return (
     
     <AuthProvider>
-      <Router>
+      
         <Toaster position="bottom-right" richColors />
         <div className="min-h-screen bg-[#FDFBF7] font-sans flex flex-col selection:bg-[#D97706]/20">
           
@@ -57,7 +57,7 @@ function App() {
           <Footer />
           <FloatingChatWidget />
         </div>
-      </Router>
+      
     </AuthProvider>
   );
 }
