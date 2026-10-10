@@ -21,6 +21,7 @@ import ContactUs from "./pages/ContactUs";
 import Privacypolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import ExploreParties from './pages/ExploreParties';
+import FloatingChatWidget from './components/FloatingChatWidget';
 
 
 function App() {
@@ -54,6 +55,7 @@ function App() {
           </main>
 
           <Footer />
+          <FloatingChatWidget />
         </div>
       </Router>
     </AuthProvider>
