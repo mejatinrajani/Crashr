@@ -339,3 +339,8 @@ async def toggle_checkin(ticket_id: str, current_user = Depends(get_current_user
     current_status = ticket_res.data[0].get("checked_in", False)
     response = supabase.table("tickets").update({"checked_in": not current_status}).eq("id", ticket_id).execute()
     return response.data[0]
+
+@app.get("/health")
+async def health_check():
+    """Basic health check to verify the API is running."""
+    return {"status": "healthy", "message": "API is up and running"}
