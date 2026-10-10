@@ -8,13 +8,16 @@ import { supabase } from '../services/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { formatDateTime, formatCurrency } from '../utils/formatters';
+
 import {
   Share2,
   Copy,
   CalendarPlus,
   Heart,
   Sparkles,
+  MessageCircle,
 } from 'lucide-react';
+
 
 export default function PartyDetails() {
   const { id } = useParams();
@@ -89,6 +92,71 @@ const organizerAvatar =
 
 const organizerInitial =
   organizerName.trim().charAt(0).toUpperCase() || 'H';
+
+
+const handleMessageHost = async () => {
+  if (!user) {
+    toast.error('Please log in to message the host.');
+    return;
+  }
+
+  if (user.id === party.host_id) {
+    toast.error("You can't start a conversation with yourself.");
+    return;
+  }
+
+  try {
+    // Reuse an existing conversation for this guest and party.
+    const { data: existingConversation, error: lookupError } =
+      await supabase
+        .from('conversations')
+        .select('id')
+        .eq('party_id', party.id)
+        .eq('guest_id', user.id)
+        .maybeSingle();
+
+    if (lookupError) throw lookupError;
+
+    if (existingConversation) {
+      toast.success('Conversation already exists! Open Messaging below.');
+      window.dispatchEvent(
+        new CustomEvent('crashr:open-messaging', {
+          detail: { conversationId: existingConversation.id },
+        })
+      );
+      return;
+    }
+
+    // Create a conversation using the existing database schema.
+    const { data: newConversation, error: createError } =
+      await supabase
+        .from('conversations')
+        .insert({
+          party_id: party.id,
+          host_id: party.host_id,
+          guest_id: user.id,
+        })
+        .select('id')
+        .single();
+
+    if (createError) throw createError;
+
+    toast.success('Conversation started! You can message the host now.');
+
+    window.dispatchEvent(
+      new CustomEvent('crashr:open-messaging', {
+        detail: { conversationId: newConversation.id },
+      })
+    );
+  } catch (err) {
+    console.error('Unable to start conversation:', err);
+
+    toast.error(
+      err.message || 'Could not start a conversation. Please try again.'
+    );
+  }
+};
+
 
 
 const handlePayment = async () => {
@@ -524,7 +592,15 @@ return (
         <p className="max-w-xl text-sm leading-6 text-stone-600">
           Every great night starts with great people. Get ready to
           connect, enjoy the atmosphere, and make the night memorable.
-        </p>
+        </p> 
+        <button
+          type="button"
+          onClick={handleMessageHost}
+          className="mt-4 inline-flex items-center justify-center gap-2 rounded-md bg-[#D97706] px-5 py-3 text-sm font-bold text-white transition hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2"
+        >
+          <MessageCircle size={17} />
+          Message Host
+        </button>
       </div>
     </div>
   </div>
