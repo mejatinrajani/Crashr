@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { Toaster } from 'react-hot-toast';
 
@@ -44,7 +44,7 @@ function App() {
               <Route path="/party/:id" element={<PartyDetails />} />
               <Route path="/my-tickets" element={<MyTickets/>} />
               <Route path="/host" element={<CreateParty />} />
-              <Route path="/edit-party/:id" element={<EditParty/>} />
+              <Route path="/edit-party/:id" element={<EditParty/>} /> 
               <Route path="/profile" element={<Profile />} />
               <Route path="/dashboard" element={<HostDashboard />} />
               <Route path="/help-center" element={<HelpCenter />} />
