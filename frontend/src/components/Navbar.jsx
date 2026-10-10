@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import {Link,useLocation,useNavigate,useSearchParams} from 'react-router-dom';
-import {MapPin,Search,Menu,X,Ticket,LayoutDashboard,UserRound,LogOut,Plus,Sparkles} from 'lucide-react';
+import {MapPin,Search,Menu,X,Ticket,LayoutDashboard,UserRound,LogOut,Plus,Sparkles,Compass} from 'lucide-react';
 
 import Button from './Button';
 import { useAuth } from '../context/AuthContext';
@@ -47,22 +47,27 @@ export default function Navbar() {
   const isActive = (path) => location.pathname === path;
 
   const navItems = [
-    {
-      label: 'Tickets',
-      path: '/my-tickets',
-      icon: Ticket,
-    },
-    {
-      label: 'Dashboard',
-      path: '/dashboard',
-      icon: LayoutDashboard,
-    },
-    {
-      label: 'Profile',
-      path: '/profile',
-      icon: UserRound,
-    },
-  ];
+  {
+    label: 'Explore Parties',
+    path: '/explore',
+    icon: Compass,
+  },
+  {
+    label: 'Tickets',
+    path: '/my-tickets',
+    icon: Ticket,
+  },
+  {
+    label: 'Dashboard',
+    path: '/dashboard',
+    icon: LayoutDashboard,
+  },
+  {
+    label: 'Profile',
+    path: '/profile',
+    icon: UserRound,
+  },
+];
 
   const navLinkClass = (path) =>
     `relative flex items-center gap-2 rounded-full px-3 py-2 text-sm font-bold transition-all duration-200 ${

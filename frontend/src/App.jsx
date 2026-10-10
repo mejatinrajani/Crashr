@@ -20,6 +20,7 @@ import HelpCenter from "./pages/HelpCenter";
 import ContactUs from "./pages/ContactUs";
 import Privacypolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
+import ExploreParties from './pages/ExploreParties';
 
 
 function App() {
@@ -37,6 +38,7 @@ function App() {
           <main className="flex-grow flex flex-col">  
             <Routes>
               <Route path="/" element={<Home />} />
+              <Route path="/explore" element={<ExploreParties />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/party/:id" element={<PartyDetails />} />
               <Route path="/my-tickets" element={<MyTickets/>} />

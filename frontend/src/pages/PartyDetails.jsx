@@ -13,6 +13,7 @@ import {
   Copy,
   CalendarPlus,
   Heart,
+  Sparkles,
 } from 'lucide-react';
 
 export default function PartyDetails() {
