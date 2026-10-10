@@ -21,6 +21,8 @@ import {
 } from 'lucide-react';
 import { motion, useReducedMotion } from 'framer-motion';
 
+
+
 const FILTERS = [
   { label: 'All parties', value: 'all' },
   { label: 'Tonight', value: 'tonight' },
@@ -106,6 +108,8 @@ export default function Home() {
   const [error, setError] = useState(null);
   const [activeFilter, setActiveFilter] = useState('all');
   const [searchInput, setSearchInput] = useState('');
+  const [maxBudget, setMaxBudget] = useState(500);
+  const [sortBy, setSortBy] = useState('soonest');
 
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -150,11 +154,14 @@ export default function Home() {
     return parties.filter((party) => {
       const location = getPartyLocation(party);
 
-      const matchesCity =
-        !searchCity ||
-        location.toLowerCase().includes(
-          searchCity.trim().toLowerCase()
-        );
+      
+const searchTerm = searchCity.trim().toLowerCase();
+
+const matchesSearch =
+  !searchTerm ||
+  location.toLowerCase().includes(searchTerm) ||
+  String(party?.title || '').toLowerCase().includes(searchTerm);
+
 
       const matchesFilter = matchesDateFilter(
         party,
@@ -164,16 +171,55 @@ export default function Home() {
       const price = getPartyPrice(party);
 
       const matchesBudget =
-        activeFilter !== 'budget' ||
-        (price !== null && price < 500);
+  activeFilter !== 'budget' ||
+  (price !== null && price <= maxBudget);
 
       return (
-        matchesCity &&
-        matchesFilter &&
-        matchesBudget
-      );
+  matchesSearch &&
+  matchesFilter &&
+  matchesBudget
+);
     });
-  }, [parties, searchCity, activeFilter]);
+  }, [parties, searchCity, activeFilter, maxBudget]);
+  
+const sortedParties = useMemo(() => {
+  const result = [...filteredParties];
+
+  result.sort((a, b) => {
+    if (sortBy === 'price-low') {
+      const priceA = getPartyPrice(a);
+      const priceB = getPartyPrice(b);
+
+      if (priceA === null) return 1;
+      if (priceB === null) return -1;
+
+      return priceA - priceB;
+    }
+
+    if (sortBy === 'price-high') {
+      const priceA = getPartyPrice(a);
+      const priceB = getPartyPrice(b);
+
+      if (priceA === null) return 1;
+      if (priceB === null) return -1;
+
+      return priceB - priceA;
+    }
+
+    // Default: upcoming parties first
+    const dateA = getPartyDate(a);
+    const dateB = getPartyDate(b);
+
+    if (!dateA && !dateB) return 0;
+    if (!dateA) return 1;
+    if (!dateB) return -1;
+
+    return dateA.getTime() - dateB.getTime();
+  });
+
+  return result;
+}, [filteredParties, sortBy]);
+
 
   const submitSearch = (event) => {
     event.preventDefault();
@@ -296,8 +342,8 @@ export default function Home() {
                   onChange={(event) =>
                     setSearchInput(event.target.value)
                   }
-                  placeholder="Search your city or town..."
-                  aria-label="Search parties by city or town"
+                  placeholder="Search party name or city..."
+                  aria-label="Search parties by name or city"
                   className="home-search-input"
                 />
 
@@ -362,7 +408,7 @@ export default function Home() {
             )}
           </div>
 
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {FILTERS.map((filter) => (
               <button
                 key={filter.value}
@@ -394,6 +440,45 @@ export default function Home() {
                 {filter.label}
               </button>
             ))}
+            
+{activeFilter === 'budget' && (
+  <div className="mt-5 max-w-xl rounded-2xl border border-orange-200/70 bg-white/70 p-5 shadow-sm">
+    <div className="mb-4 flex items-center justify-between gap-3">
+      <div>
+        <p className="text-sm font-extrabold text-stone-900">
+          Your maximum budget
+        </p>
+        <p className="mt-1 text-xs text-stone-500">
+          Find parties within your price range.
+        </p>
+      </div>
+
+      <span className="rounded- bg-orange-50 px-3 py-2 text-sm font-black text-orange-800">
+        ₹{maxBudget}
+      </span>
+    </div>
+
+    <input
+      type="range"
+      min="0"
+      max="5000"
+      step="100"
+      value={maxBudget}
+      onChange={(event) =>
+        setMaxBudget(Number(event.target.value))
+      }
+      aria-label="Maximum party budget in rupees"
+      className="w-full cursor-pointer accent-orange-600"
+    />
+
+    <div className="mt-2 flex justify-between text-xs font-semibold text-stone-500">
+      <span>₹0</span>
+      <span>₹2,500</span>
+      <span>₹5,000</span>
+    </div>
+  </div>
+)}
+
           </div>
         </section>
 
@@ -485,8 +570,8 @@ export default function Home() {
 
             <p className="mt-3 max-w-lg text-sm leading-6 text-stone-600">
               {searchCity
-                ? `We couldn't find parties in ${searchCity} with these filters. Try another area or explore all available parties.`
-                : 'Nothing matches this filter right now. Try another date or explore all parties.'}
+              ? `We couldn't find parties matching "${searchCity}" with these filters. Try another search or explore all available parties.`
+              : 'Nothing matches this filter right now. Try another date or explore all parties.'}
             </p>
 
             <div className="mt-6 flex flex-wrap justify-center gap-3">
@@ -537,6 +622,27 @@ export default function Home() {
                   {searchCity ? ` in ${searchCity}` : ''}
                 </p>
               </div>
+              
+<div className="flex items-center gap-2">
+  <label
+    htmlFor="party-sort"
+    className="whitespace-nowrap text-sm font-bold text-stone-600"
+  >
+    Sort by
+  </label>
+
+  <select
+    id="party-sort"
+    value={sortBy}
+    onChange={(event) => setSortBy(event.target.value)}
+    className="min-h-11 max-w-full rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm font-bold text-stone-800 shadow-sm outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+  >
+    <option value="soonest">Earliest first</option>
+    <option value="price-low">Price: low to high</option>
+    <option value="price-high">Price: high to low</option>
+  </select>
+</div>
+
             </div>
 
             <motion.div
@@ -545,7 +651,7 @@ export default function Home() {
               animate="show"
               className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"
             >
-              {filteredParties.map((party) => (
+              {sortedParties.map((party) => (
                 <motion.div
                   key={party.id}
                   variants={item}
