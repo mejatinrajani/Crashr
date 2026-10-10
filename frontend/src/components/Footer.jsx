@@ -1,22 +1,24 @@
 import { Link } from "react-router-dom";
 import {
   ArrowUpRight,
-  Instagram,
-  Twitter,
-  Mail,
+  
 } from 'lucide-react';
+
+import { Mail } from 'lucide-react';
+import { SiInstagram, SiX } from 'react-icons/si';
+
 
 const socialLinks = [
   {
     name: 'Instagram',
     href: '#',
-    Icon: Instagram,
+    Icon: SiInstagram,
     label: 'Visit Crashr on Instagram',
   },
   {
     name: 'X (Twitter)',
     href: '#',
-    Icon: Twitter,
+    Icon: SiX,
     label: 'Visit Crashr on X',
   },
   {
@@ -134,7 +136,7 @@ export default function Footer() {
                   href={href}
                   aria-label={label}
                   title={name}
-                  className="group flex h-12 w-12 items-center overflow-hidden rounded-full border border-orange-900/10 bg-[#FFF9F1] text-stone-800 shadow-[0_3px_10px_rgba(41,37,36,0.05)] transition-[width,background-color,border-color,box-shadow] duration-300 ease-out hover:w-44 hover:border-orange-700/20 hover:bg-[#F1E5D5] hover:shadow-[0_6px_18px_rgba(41,37,36,0.09)] focus-visible:w-44 focus-visible:border-orange-700/30 focus-visible:bg-[#F1E5D5] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600 sm:h-12 sm:w-12"
+                  className="group flex h-12 w-12 items-center overflow-hidden rectangular-full border border-orange-900/10 bg-[#FFF9F1] text-stone-800 shadow-[0_3px_10px_rgba(41,37,36,0.05)] transition-[width,background-color,border-color,box-shadow] duration-300 ease-out hover:w-44 hover:border-orange-700/20 hover:bg-[#F1E5D5] hover:shadow-[0_6px_18px_rgba(41,37,36,0.09)] focus-visible:w-44 focus-visible:border-orange-700/30 focus-visible:bg-[#F1E5D5] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600 sm:h-12 sm:w-12"
                 >
                   <span className="grid h-12 w-12 shrink-0 place-items-center">
                     <Icon

@@ -15,7 +15,7 @@ import Profile from './pages/Profile';
 import MyTickets from './pages/MyTickets';
 import HostDashboard from './pages/HostDashboard';
 import EditParty from './pages/EditParty';
-import Map from './components/Map'
+// import Map from './components/Map'
 import HelpCenter from "./pages/HelpCenter";
 import ContactUs from "./pages/ContactUs";
 import Privacypolicy from "./pages/PrivacyPolicy";
@@ -53,9 +53,6 @@ function App() {
 
           <Footer />
         </div>
-        <div style={{ width: '100vw', height: '50vh' }}>
-      <Map />
-    </div>
       </Router>
     </AuthProvider>
   );

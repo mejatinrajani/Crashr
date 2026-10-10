@@ -1,3 +1,4 @@
+
 import { Link } from 'react-router-dom';
 import {
   CalendarDays,
@@ -43,12 +44,8 @@ export default function PartyCard({ party }) {
         className="absolute inset-x-0 top-0 z-20 h-1 origin-left scale-x-0 bg-gradient-to-r from-orange-400 via-amber-500 to-orange-700 transition-transform duration-500 group-hover:scale-x-100"
       />
 
-      {/* ========================================================= */}
-      {/* TOP 40% — HOST UPLOADED PARTY IMAGE */}
-      {/* ========================================================= */}
-
+      {/* Party cover image */}
       <div className="relative h-[224px] shrink-0 overflow-hidden bg-gradient-to-br from-orange-100 via-amber-50 to-stone-100">
-
         {coverImageUrl ? (
           <img
             src={coverImageUrl}
@@ -72,21 +69,18 @@ export default function PartyCard({ party }) {
           </div>
         )}
 
-        {/* Image overlay */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 bg-gradient-to-t from-stone-950/25 via-transparent to-transparent"
         />
 
-        {/* Party type */}
         <div className="absolute left-5 top-5">
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/70 bg-white/90 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-orange-800 shadow-sm backdrop-blur-md">
+          <span className="inline-flex items-center gap-2 rounded-md border border-white/70 bg-white/90 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-orange-800 shadow-sm backdrop-blur-md">
             <PartyPopper size={13} />
             House party
           </span>
         </div>
 
-        {/* Sparkles */}
         <Sparkles
           size={20}
           aria-hidden="true"
@@ -94,10 +88,7 @@ export default function PartyCard({ party }) {
         />
       </div>
 
-      {/* ========================================================= */}
-      {/* BOTTOM 60% — EXISTING PARTY DETAILS */}
-      {/* ========================================================= */}
-
+      {/* Party details */}
       <div className="flex min-h-0 flex-1 flex-col px-5 pb-5 pt-5 sm:px-6">
 
         {/* Party title */}
@@ -108,7 +99,6 @@ export default function PartyCard({ party }) {
         {/* Host identity */}
         <div className="mb-4 flex min-w-0 items-center gap-3">
           <div className="relative shrink-0">
-
             {avatarUrl ? (
               <img
                 src={avatarUrl}
@@ -148,70 +138,66 @@ export default function PartyCard({ party }) {
           </div>
         </div>
 
-        {/* Party information */}
-        <div className="space-y-2.5">
+        {/* When and Where — side by side */}
+        <div className="grid grid-cols-2 gap-2">
 
           {/* Date / Time */}
-          <div className="flex min-w-0 items-start gap-3 rounded-2xl bg-stone-900/[0.025] p-2.5 transition-colors duration-200 group-hover:bg-orange-500/[0.045]">
-
+          <div className="flex min-w-0 items-start gap-2 rounded-md bg-stone-900/[0.025] p-2 transition-colors duration-200 group-hover:bg-orange-500/[0.045] sm:gap-2.5 sm:p-2.5">
             <div className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-white text-orange-700 shadow-sm">
               <CalendarDays size={16} />
             </div>
 
             <div className="min-w-0 flex-1 py-0.5">
-              <p className="mb-0.5 text-[8px] font-black uppercase tracking-[0.13em] text-stone-400">
+              <p className="mb-0.5 text-[8px] font-black uppercase tracking-[0.1em] text-stone-400">
                 When
               </p>
 
-              <p className="break-words text-xs font-bold leading-4 text-stone-700">
+              <p className="break-words text-[11px] font-bold leading-4 text-stone-700 sm:text-xs">
                 {eventTime}
               </p>
             </div>
           </div>
 
           {/* Location */}
-          <div className="flex min-w-0 items-start gap-3 rounded-2xl bg-stone-900/[0.025] p-2.5 transition-colors duration-200 group-hover:bg-orange-500/[0.045]">
-
+          <div className="flex min-w-0 items-start gap-2 rounded-md bg-stone-900/[0.025] p-2 transition-colors duration-200 group-hover:bg-orange-500/[0.045] sm:gap-2.5 sm:p-2.5">
             <div className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-white text-orange-700 shadow-sm">
               <MapPin size={16} />
             </div>
 
             <div className="min-w-0 flex-1 py-0.5">
-              <p className="mb-0.5 text-[8px] font-black uppercase tracking-[0.13em] text-stone-400">
+              <p className="mb-0.5 text-[8px] font-black uppercase tracking-[0.1em] text-stone-400">
                 Where
               </p>
 
-              <p className="break-words text-xs font-bold leading-4 text-stone-700">
+              <p className="break-words text-[11px] font-bold leading-4 text-stone-700 sm:text-xs">
                 {location}
               </p>
             </div>
           </div>
-
-          {/* Capacity */}
-          {party.capacity != null && (
-            <div className="flex items-center gap-3 px-1 pt-0.5">
-              <Users
-                size={15}
-                className="shrink-0 text-orange-700"
-              />
-
-              <p className="text-xs font-semibold text-stone-500">
-                <span className="font-extrabold text-stone-800">
-                  {party.capacity}
-                </span>{' '}
-                guest spots
-              </p>
-            </div>
-          )}
         </div>
+
+        {/* Capacity */}
+        {party.capacity != null && (
+          <div className="mt-3 flex items-center gap-3 px-1 pt-0.5">
+            <Users
+              size={15}
+              className="shrink-0 text-orange-700"
+            />
+
+            <p className="text-xs font-semibold text-stone-500">
+              <span className="font-extrabold text-stone-800">
+                {party.capacity}
+              </span>{' '}
+              guest spots
+            </p>
+          </div>
+        )}
 
         {/* Price and CTA */}
         <div className="mt-auto pt-4">
-
           <div className="mb-3 border-t border-dashed border-stone-900/10" />
 
           <div className="flex items-end justify-between gap-3">
-
             <div className="min-w-0 flex-1">
               <p className="mb-1 text-[8px] font-black uppercase tracking-[0.16em] text-stone-400">
                 Your entry
@@ -225,7 +211,7 @@ export default function PartyCard({ party }) {
             <Link
               to={`/party/${party.id}`}
               aria-label={`Explore ${title}`}
-              className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-2xl bg-stone-900 px-4 py-2.5 text-sm font-extrabold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-orange-600 hover:shadow-[0_8px_20px_rgba(234,88,12,0.22)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600 active:translate-y-0 sm:px-5"
+              className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-md bg-stone-900 px-3.5 py-2.5 text-sm font-extrabold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:rounded-none hover:bg-orange-600 hover:shadow-[0_8px_20px_rgba(234,88,12,0.22)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600 active:translate-y-0 sm:px-5"
             >
               <span>Let's go</span>
 
@@ -234,7 +220,6 @@ export default function PartyCard({ party }) {
                 className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
               />
             </Link>
-
           </div>
         </div>
       </div>
