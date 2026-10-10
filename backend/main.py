@@ -29,7 +29,7 @@ app = FastAPI(title="Crashr API")
 # Configure CORS so your React app can talk to it
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "https://crashr.vercel.app/"], # Vite's default port
+    allow_origins=["http://localhost:5173", "https://crashr.vercel.app"], # Vite's default port
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
