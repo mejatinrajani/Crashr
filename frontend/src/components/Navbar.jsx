@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import {Link,useLocation,useNavigate,useSearchParams} from 'react-router-dom';
-import {MapPin,Search,Menu,X,Ticket,LayoutDashboard,UserRound,LogOut,Plus,Sparkles,Compass} from 'lucide-react';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { MapPin, Search, Menu, X, Ticket, LayoutDashboard, UserRound, LogOut, Plus, Sparkles, Compass } from 'lucide-react';
 
 import Button from './Button';
 import { useAuth } from '../context/AuthContext';
@@ -11,9 +11,7 @@ export default function Navbar() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  const [searchCity, setSearchCity] = useState(
-    searchParams.get('city') || ''
-  );
+  const [searchCity, setSearchCity] = useState(searchParams.get('city') || '');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -26,7 +24,6 @@ export default function Navbar() {
 
   useEffect(() => {
     document.body.style.overflow = mobileMenuOpen ? 'hidden' : '';
-
     return () => {
       document.body.style.overflow = '';
     };
@@ -34,75 +31,58 @@ export default function Navbar() {
 
   const handleSearch = (e) => {
     e.preventDefault();
-
     const city = searchCity.trim();
-
-    navigate(
-      city ? `/?city=${encodeURIComponent(city)}` : '/'
-    );
-
+    navigate(city ? `/?city=${encodeURIComponent(city)}` : '/');
     setMobileMenuOpen(false);
   };
 
   const isActive = (path) => location.pathname === path;
 
   const navItems = [
-  {
-    label: 'Explore Parties',
-    path: '/explore',
-    icon: Compass,
-  },
-  {
-    label: 'Tickets',
-    path: '/my-tickets',
-    icon: Ticket,
-  },
-  {
-    label: 'Dashboard',
-    path: '/dashboard',
-    icon: LayoutDashboard,
-  },
-  {
-    label: 'Profile',
-    path: '/profile',
-    icon: UserRound,
-  },
-];
+    { label: 'Explore', path: '/explore', icon: Compass },
+    { label: 'Tickets', path: '/my-tickets', icon: Ticket },
+    { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+    { label: 'Profile', path: '/profile', icon: UserRound },
+  ];
 
   const navLinkClass = (path) =>
-    `relative flex items-center gap-2 rounded-full px-3 py-2 text-sm font-bold transition-all duration-200 ${
+    `relative flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-all duration-200 ${
       isActive(path)
         ? 'bg-[#D97706]/10 text-[#B45309]'
-        : 'text-[#57534E] hover:bg-white/70 hover:text-[#B45309]'
+        : 'text-[#57534E] hover:bg-black/5 hover:text-[#292524]'
     }`;
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-[#292524]/[0.07] bg-[#FDFBF7]/85 backdrop-blur-xl">
-      <div className="mx-auto flex h-76px max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+    <nav className="sticky top-0 z-50 w-full p- 3 sm:p-4 transition-all duration-300">
+      {/* Removed the background, shadow, and borders I added earlier */}
+      <div className="mx-auto flex h-[72px] max-w- items-center justify-between gap-4 rounded-[2rem] px-5 backdrop-blur-xl sm:px-8">
 
         {/* Brand */}
         <Link
           to="/"
-          className="group flex shrink-0 items-center gap-2"
+          className="group flex shrink-0 items-center gap-3"
           aria-label="Crashr home"
         >
-          <span className="relative text-[27px] font-black tracking-[-1.8px] text-[#292524] transition-transform duration-200 group-hover:scale-[1.03] sm:text-3xl">
-            CRASHR
-            <span className="text-[#F97316]">.</span>
-          </span>
+          {/* Logo: h-12 on mobile, scales back to your original h-32 on laptops */}
+          <img 
+            src="/crashr_logo.png" 
+            alt="Crashr Logo" 
+            className="h-12 md:h-20 lg:h-32 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+          />
 
-          <span className="hidden rounded-full bg-[#F97316]/10 px-2 py-1 text-[9px] font-black uppercase tracking-[1.2px] text-[#C2410C] sm:inline-block">
-            Find your crowd
+          {/* Tagline: Hidden on mobile/tablets, uses your exact margins and sizing on laptops */}
+          <span className="hidden lg:inline-block text-md -ml-16 mt-12 font-medium italic text-[#FD691D]">
+            find your people........
           </span>
         </Link>
 
         {/* Desktop city search */}
         <form
           onSubmit={handleSearch}
-          className="group relative hidden w-full max-w-300px sm:block lg:max-w-340px"
+          className="group relative mt-6 hidden w-full max-w-[280px] lg:block xl:max-w-[340px]"
         >
           <MapPin
-            size={17}
+            size={18}
             className="absolute left-4 top-1/2 -translate-y-1/2 text-[#A8A29E] transition-colors group-focus-within:text-[#D97706]"
           />
 
@@ -112,53 +92,48 @@ export default function Navbar() {
             value={searchCity}
             onChange={(e) => setSearchCity(e.target.value)}
             aria-label="Search parties by city"
-            className="w-full rounded-full border border-[#292524]/10 bg-white/70 py-3 pl-11 pr-12 text-sm font-semibold text-[#292524] outline-none transition-all duration-200 placeholder:font-medium placeholder:text-[#A8A29E] hover:border-[#D97706]/30 focus:border-[#D97706]/50 focus:bg-white focus:ring-4 focus:ring-[#D97706]/10"
+            className="w-full rounded-full border border-transparent bg-[FDFBF7] py-2.5 pl-11 pr-12 text-sm font-medium text-[#292524] outline-none placeholder:text-[#A8A29E] focus:border-[#D97706]/30 focus:bg-white focus:ring-4 focus:ring-[#D97706]/10"
           />
 
           <button
             type="submit"
             aria-label="Search city"
-            className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-[#292524] text-white transition-all duration-200 hover:scale-105 hover:bg-[#D97706] active:scale-95"
+            className="absolute right-1.5 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-[#FDFBF7] text-white transition-all duration-200 hover:scale-105 active:scale-95"
           >
-            <Search size={15} />
+            <Search size={18} className='text-[#FD691D]' />
           </button>
         </form>
 
         {/* Desktop navigation */}
-        <div className="hidden shrink-0 items-center gap-1 lg:flex">
+        <div className="hidden shrink-0 mt-6 items-center gap-4 lg:flex">
           {user ? (
             <>
               {navItems.map(({ label, path, icon: Icon }) => (
-                <Link
-                  key={path}
-                  to={path}
-                  className={navLinkClass(path)}
-                >
+                <Link key={path} to={path} className={navLinkClass(path)}>
                   <Icon size={16} />
                   {label}
                 </Link>
               ))}
 
+              <div className="mx-2 h-6 w-px bg-black/10" />
+
               <button
                 type="button"
                 onClick={logout}
-                className="ml-1 flex items-center gap-2 rounded-full px-3 py-2 text-sm font-bold text-[#78716C] transition-colors hover:bg-red-50 hover:text-red-600"
+                className="flex items-center gap-2 rounded-full p-2 text-[#78716C] transition-colors hover:bg-red-50 hover:text-red-600"
+                aria-label="Log out"
               >
-                <LogOut size={16} />
-                Log out
+                <LogOut size={18} />
               </button>
 
-              <Link
-                to="/host"
-                className="ml-2"
-              >
+              <Link to="/host" className="ml-1">
                 <Button
                   variant="rectangular"
                   color="espresso"
-                  className="flex items-center gap-2 rounded-full px-5 py-3 text-sm font-bold shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+                  className="flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-bold shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
                 >
-                  <Plus size={17} />
-                  Host a Party
+                  <Plus size={18} />
+                  Host
                 </Button>
               </Link>
             </>
@@ -166,27 +141,25 @@ export default function Navbar() {
             <>
               <Link
                 to="/auth"
-                className="rounded-full px-4 py-2.5 text-sm font-bold text-[#57534E] transition-colors hover:bg-white hover:text-[#D97706]"
+                className="rounded-full px-5 py-2.5 text-md font-bold text-[#57534E] transition-all"
               >
                 Log in
               </Link>
 
               <Link to="/auth">
-                <Button
-                  variant="rectangular"
-                  color="espresso"
-                  className="flex items-center gap-2 rounded-full px-5 py-3 text-sm font-bold shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+                <button
+                  className="flex items-center !text-[#FD691D] bg-[#FDFBF7] gap-2 px-6 py-2.5 font-bold !shadow-none !transition-none !border-none"
                 >
-                  <Sparkles size={16} />
                   Join the fun
-                </Button>
+                  <Sparkles size={16} />
+                </button>
               </Link>
             </>
           )}
         </div>
 
         {/* Compact navigation for mobile and tablet */}
-        <div className="flex shrink-0 items-center gap-2 lg:hidden">
+        <div className="flex shrink-0 items-center gap-3 lg:hidden">
           {user && (
             <Link
               to="/host"
@@ -200,7 +173,7 @@ export default function Navbar() {
           {!user && (
             <Link
               to="/auth"
-              className="rounded-full bg-[#292524] px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#D97706]"
+              className="rounded-full bg-[#292524] px-5 py-2 text-sm font-bold text-white transition-colors hover:bg-[#D97706]"
             >
               Join
             </Link>
@@ -209,9 +182,8 @@ export default function Navbar() {
           <button
             type="button"
             onClick={() => setMobileMenuOpen((open) => !open)}
-            aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
-            aria-expanded={mobileMenuOpen}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-[#292524]/10 bg-white/70 text-[#292524] transition-colors hover:bg-white"
+            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-black/5 text-[#292524] transition-colors hover:bg-black/10"
           >
             {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
@@ -220,27 +192,20 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       {mobileMenuOpen && (
-        <div className="absolute left-0 right-0 top-full z-50 border-b border-[#292524]/10 bg-[#FDFBF7] px-4 pb-5 pt-3 shadow-xl lg:hidden">
-          <div className="mx-auto max-w-7xl space-y-4">
-
-            <form onSubmit={handleSearch} className="relative sm:hidden">
-              <MapPin
-                size={17}
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-[#A8A29E]"
-              />
-
+        <div className="absolute left-4 right-4 top-[88px] z-50 mt-2 rounded-[2rem] border border-[#292524]/10 bg-[#FDFBF7] p-5 shadow-2xl lg:hidden">
+          <div className="flex flex-col space-y-4">
+            
+            <form onSubmit={handleSearch} className="relative w-full">
+              <MapPin size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#A8A29E]" />
               <input
                 type="text"
                 placeholder="Search by city..."
                 value={searchCity}
                 onChange={(e) => setSearchCity(e.target.value)}
-                aria-label="Search parties by city"
-                className="w-full rounded-full border border-[#292524]/10 bg-white py-3 pl-11 pr-12 text-sm font-semibold text-[#292524] outline-none focus:border-[#D97706]/50 focus:ring-4 focus:ring-[#D97706]/10"
+                className="w-full rounded-full border border-black/10 bg-white py-3 pl-11 pr-12 text-sm font-medium text-[#292524] outline-none focus:border-[#D97706]/50 focus:ring-4 focus:ring-[#D97706]/10"
               />
-
               <button
                 type="submit"
-                aria-label="Search city"
                 className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-[#292524] text-white hover:bg-[#D97706]"
               >
                 <Search size={15} />
@@ -248,48 +213,38 @@ export default function Navbar() {
             </form>
 
             {user ? (
-              <>
-                <div className="space-y-1">
-                  {navItems.map(({ label, path, icon: Icon }) => (
-                    <Link
-                      key={path}
-                      to={path}
-                      className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold transition-colors ${
-                        isActive(path)
-                          ? 'bg-[#D97706]/10 text-[#B45309]'
-                          : 'text-[#57534E] hover:bg-white hover:text-[#B45309]'
-                      }`}
-                    >
-                      <Icon size={18} />
-                      {label}
-                    </Link>
-                  ))}
-                </div>
-
-                <Link
-                  to="/host"
-                  className="flex items-center justify-center gap-2 rounded-full bg-[#292524] px-4 py-3 font-bold text-white transition-colors hover:bg-[#D97706]"
-                >
-                  <Plus size={18} />
-                  Host a Party
-                </Link>
+              <div className="flex flex-col gap-1 pt-2">
+                {navItems.map(({ label, path, icon: Icon }) => (
+                  <Link
+                    key={path}
+                    to={path}
+                    className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-colors ${
+                      isActive(path) ? 'bg-[#D97706]/10 text-[#B45309]' : 'text-[#57534E] hover:bg-black/5'
+                    }`}
+                  >
+                    <Icon size={18} />
+                    {label}
+                  </Link>
+                ))}
+                
+                <div className="my-2 h-px w-full bg-black/5" />
 
                 <button
                   type="button"
                   onClick={logout}
-                  className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-red-600 transition-colors hover:bg-red-50"
+                  className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold text-red-600 transition-colors hover:bg-red-50"
                 >
                   <LogOut size={18} />
                   Log out
                 </button>
-              </>
+              </div>
             ) : (
-              <div className="space-y-2">
+              <div className="pt-2">
                 <Link
                   to="/auth"
-                  className="flex items-center justify-center gap-2 rounded-full bg-[#292524] px-4 py-3 font-bold text-white transition-colors hover:bg-[#D97706]"
+                  className="flex w-full items-center justify-center gap-2 rounded-full bg-[#292524] py-3 text-sm font-bold text-white transition-colors hover:bg-[#D97706]"
                 >
-                  <Sparkles size={17} />
+                  <Sparkles size={18} />
                   Join the fun
                 </Link>
               </div>

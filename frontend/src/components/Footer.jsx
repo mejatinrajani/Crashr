@@ -1,12 +1,9 @@
 import { Link } from "react-router-dom";
 import {
   ArrowUpRight,
-  
+  Mail 
 } from 'lucide-react';
-
-import { Mail } from 'lucide-react';
 import { SiInstagram, SiX } from 'react-icons/si';
-
 
 const socialLinks = [
   {
@@ -44,14 +41,13 @@ export default function Footer() {
             <a
               href="/"
               aria-label="Crashr home"
-              className="group inline-flex items-baseline"
+              className="group inline-block"
             >
-              <span className="text-[38px] font-black leading-none tracking-[-0.075em] text-stone-900 transition-colors duration-300 group-hover:text-stone-700 sm:text-[44px]">
-                CRASHR
-              </span>
-              <span className="ml-1 text-[38px] font-black leading-none text-orange-600 transition-transform duration-300 group-hover:translate-x-0.5 sm:text-[44px]">
-                .
-              </span>
+              <img 
+                src="/crashr_logo.png" 
+                alt="Crashr Logo" 
+                className="h-14 sm:h-16 md:h-20 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+              />
             </a>
 
             <p className="mt-5 max-w-sm text-sm font-medium leading-7 text-stone-500 sm:text-[15px]">
@@ -136,7 +132,7 @@ export default function Footer() {
                   href={href}
                   aria-label={label}
                   title={name}
-                  className="group flex h-12 w-12 items-center overflow-hidden rectangular-full border border-orange-900/10 bg-[#FFF9F1] text-stone-800 shadow-[0_3px_10px_rgba(41,37,36,0.05)] transition-[width,background-color,border-color,box-shadow] duration-300 ease-out hover:w-44 hover:border-orange-700/20 hover:bg-[#F1E5D5] hover:shadow-[0_6px_18px_rgba(41,37,36,0.09)] focus-visible:w-44 focus-visible:border-orange-700/30 focus-visible:bg-[#F1E5D5] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600 sm:h-12 sm:w-12"
+                  className="group flex h-12 w-12 items-center overflow-hidden rounded-full border border-orange-900/10 bg-[#FFF9F1] text-stone-800 shadow-[0_3px_10px_rgba(41,37,36,0.05)] transition-[width,background-color,border-color,box-shadow] duration-300 ease-out hover:w-44 hover:border-orange-700/20 hover:bg-[#F1E5D5] hover:shadow-[0_6px_18px_rgba(41,37,36,0.09)] focus-visible:w-44 focus-visible:border-orange-700/30 focus-visible:bg-[#F1E5D5] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600 sm:h-12 sm:w-12"
                 >
                   <span className="grid h-12 w-12 shrink-0 place-items-center">
                     <Icon
@@ -163,7 +159,7 @@ export default function Footer() {
         </div>
 
         {/* Oversized full-width wordmark */}
-        <div className="mt-12 border-b border-stone-900/70 pb-2 pt-6 sm:mt-16 sm:pt-8 lg:mt-20">
+        <div className="mt-12 border-b border-stone-900/70 pb-4 pt-6 sm:mt-16 sm:pt-8 lg:mt-20">
           <a
             href="/"
             aria-label="Crashr home"
@@ -171,13 +167,13 @@ export default function Footer() {
           >
             <div
               aria-hidden="true"
-              className="w-full whitespace-nowrap text-center text-[19vw] font-black leading-[0.82] tracking-[-0.085em] text-transparent bg-clip-text transition-all duration-500 group-hover:tracking-[-0.075em]"
+              className="w-full mb-4 whitespace-nowrap text-center text-[19vw] font-black leading-[0.82] tracking-[-0.085em] text-transparent bg-clip-text transition-[letter-spacing] duration-700 ease-in-out group-hover:tracking-[0.08em]"
               style={{
                 backgroundImage:
                   'linear-gradient(180deg, #292524 0%, #292524 45%, #D8C6AF 100%)',
               }}
             >
-              CRASHR<span className="text-orange-600">.</span>
+              CRASHR<span className="text-orange-600 transition-colors duration-700 group-hover:text-orange-500">.</span>
             </div>
           </a>
         </div>
