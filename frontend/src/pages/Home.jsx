@@ -142,7 +142,7 @@ export default function Home() {
         'We couldn’t load the parties right now. Please try again.'
       );
     } finally {
-      setLoading(false);
+      setLoading(false);  
     }
   };
 
